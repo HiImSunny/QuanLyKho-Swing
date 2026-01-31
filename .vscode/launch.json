@@ -1,0 +1,78 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "SetupInitialUsers",
+            "request": "launch",
+            "mainClass": "setup.SetupInitialUsers",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "AddMaKhoToPhieuNhap",
+            "request": "launch",
+            "mainClass": "test.AddMaKhoToPhieuNhap",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "AddMaKhoToPhieuXuat",
+            "request": "launch",
+            "mainClass": "test.AddMaKhoToPhieuXuat",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "DistributeInventory",
+            "request": "launch",
+            "mainClass": "test.DistributeInventory",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "RunSchemaFix",
+            "request": "launch",
+            "mainClass": "test.RunSchemaFix",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "TestTonKho",
+            "request": "launch",
+            "mainClass": "test.TestTonKho",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "VerifyMigration",
+            "request": "launch",
+            "mainClass": "test.VerifyMigration",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "RunMigration",
+            "request": "launch",
+            "mainClass": "util.RunMigration",
+            "projectName": "QuanLyKho"
+        },
+        {
+            "type": "java",
+            "name": "FormDangNhap",
+            "request": "launch",
+            "mainClass": "view.FormDangNhap",
+            "projectName": "QuanLyKho"
+        }
+    ]
+}
