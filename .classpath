@@ -6,10 +6,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/DUY KHANG/Downloads/jbcrypt-0.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/DUY KHANG/Downloads/mysql-connector-j-8.0.33.jar"/>
-	<classpathentry kind="lib" path="d:/Code Project/Java Coding/QuanLyKho/lib/pdfbox-2.0.31.jar"/>
-	<classpathentry kind="lib" path="d:/Code Project/Java Coding/QuanLyKho/lib/fontbox-2.0.31.jar"/>
-	<classpathentry kind="lib" path="d:/Code Project/Java Coding/QuanLyKho/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jbcrypt-0.4.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-j-8.0.33.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-2.0.31.jar"/>
+	<classpathentry kind="lib" path="lib/fontbox-2.0.31.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

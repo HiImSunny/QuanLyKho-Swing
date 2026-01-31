@@ -1,5 +1,7 @@
 package view;
 
+import dao.SaoLuuDAO;
+import model.SaoLuu;
 import model.User;
 import util.DatabaseBackup;
 
@@ -8,6 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class FormSaoLuu extends JFrame {
@@ -17,14 +20,16 @@ public class FormSaoLuu extends JFrame {
     private JTable tableHistory;
     private DefaultTableModel modelHistory;
     private JButton btnBrowseBackup, btnBackup, btnBrowseRestore, btnRestore, btnRefresh;
+    private SaoLuuDAO saoLuuDAO;
 
     private String defaultBackupDir = System.getProperty("user.home") + "\\Desktop\\QuanLyKho_Backup";
 
     public FormSaoLuu(User user) {
         this.currentUser = user;
+        this.saoLuuDAO = new SaoLuuDAO();
 
         setTitle("Sao Lưu & Phục Hồi Database");
-        setSize(800, 600);
+        setSize(900, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -47,7 +52,7 @@ public class FormSaoLuu extends JFrame {
             backupDir.mkdirs();
         }
 
-        // Load lịch sử backup
+        // Load lịch sử backup từ database
         loadBackupHistory();
     }
 
@@ -84,7 +89,7 @@ public class FormSaoLuu extends JFrame {
 
         inputPanel.add(new JLabel("Đường dẫn lưu:"));
         String defaultPath = defaultBackupDir + "\\" + DatabaseBackup.generateBackupFilename();
-        txtBackupPath = new JTextField(defaultPath, 30);
+        txtBackupPath = new JTextField(defaultPath, 35);
         inputPanel.add(txtBackupPath);
 
         btnBrowseBackup = new JButton("Browse...");
@@ -93,8 +98,9 @@ public class FormSaoLuu extends JFrame {
 
         btnBackup = new JButton("Sao lưu ngay");
         btnBackup.setBackground(new Color(40, 167, 69));
-        btnBackup.setForeground(Color.BLACK);
+        btnBackup.setForeground(Color.WHITE);
         btnBackup.setPreferredSize(new Dimension(120, 30));
+        btnBackup.setFocusPainted(false);
         btnBackup.addActionListener(e -> performBackup());
         inputPanel.add(btnBackup);
 
@@ -110,7 +116,7 @@ public class FormSaoLuu extends JFrame {
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
 
         inputPanel.add(new JLabel("Chọn file backup:"));
-        txtRestorePath = new JTextField(30);
+        txtRestorePath = new JTextField(35);
         txtRestorePath.setEditable(false);
         inputPanel.add(txtRestorePath);
 
@@ -122,6 +128,7 @@ public class FormSaoLuu extends JFrame {
         btnRestore.setBackground(new Color(255, 193, 7));
         btnRestore.setForeground(Color.BLACK);
         btnRestore.setPreferredSize(new Dimension(120, 30));
+        btnRestore.setFocusPainted(false);
         btnRestore.addActionListener(e -> performRestore());
         inputPanel.add(btnRestore);
 
@@ -132,7 +139,7 @@ public class FormSaoLuu extends JFrame {
 
     private JPanel createHistoryPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Lịch sử Backup"));
+        panel.setBorder(BorderFactory.createTitledBorder("Lịch sử Sao Lưu"));
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnRefresh = new JButton("Làm mới");
@@ -140,7 +147,7 @@ public class FormSaoLuu extends JFrame {
         topPanel.add(btnRefresh);
         panel.add(topPanel, BorderLayout.NORTH);
 
-        String[] columns = { "Tên File", "Kích Thước", "Ngày Tạo", "Đường Dẫn" };
+        String[] columns = { "Tên File", "Kích Thước", "Ngày Sao Lưu", "Người Thực Hiện", "Đường Dẫn" };
         modelHistory = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -150,10 +157,11 @@ public class FormSaoLuu extends JFrame {
 
         tableHistory = new JTable(modelHistory);
         tableHistory.setRowHeight(25);
-        tableHistory.getColumnModel().getColumn(0).setPreferredWidth(200);
-        tableHistory.getColumnModel().getColumn(1).setPreferredWidth(100);
-        tableHistory.getColumnModel().getColumn(2).setPreferredWidth(150);
-        tableHistory.getColumnModel().getColumn(3).setPreferredWidth(300);
+        tableHistory.getColumnModel().getColumn(0).setPreferredWidth(180);
+        tableHistory.getColumnModel().getColumn(1).setPreferredWidth(80);
+        tableHistory.getColumnModel().getColumn(2).setPreferredWidth(130);
+        tableHistory.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tableHistory.getColumnModel().getColumn(4).setPreferredWidth(250);
 
         // Double click to load file to restore
         tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -161,7 +169,7 @@ public class FormSaoLuu extends JFrame {
                 if (evt.getClickCount() == 2) {
                     int row = tableHistory.getSelectedRow();
                     if (row >= 0) {
-                        String filePath = modelHistory.getValueAt(row, 3).toString();
+                        String filePath = modelHistory.getValueAt(row, 4).toString();
                         txtRestorePath.setText(filePath);
                     }
                 }
@@ -200,8 +208,21 @@ public class FormSaoLuu extends JFrame {
         String outputPath = txtBackupPath.getText().trim();
 
         if (outputPath.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đường dẫn lưu file!");
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đường dẫn lưu file!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
+        }
+
+        // Validate path for whitespace
+        String validationError = DatabaseBackup.validatePath(outputPath);
+        if (validationError != null) {
+            int choice = JOptionPane.showConfirmDialog(this,
+                    validationError + "\n\nBạn có muốn tiếp tục?",
+                    "Cảnh báo",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if (choice != JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         // Confirm
@@ -221,6 +242,20 @@ public class FormSaoLuu extends JFrame {
         setCursor(Cursor.getDefaultCursor());
 
         if (success) {
+            // Save to database
+            try {
+                File file = new File(outputPath);
+                SaoLuu saoLuu = new SaoLuu(
+                        file.getName(),
+                        outputPath,
+                        file.length(),
+                        currentUser.getId(),
+                        "backup");
+                saoLuuDAO.insert(saoLuu);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
             JOptionPane.showMessageDialog(this,
                     "Sao lưu thành công!\nFile: " + outputPath,
                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -242,21 +277,6 @@ public class FormSaoLuu extends JFrame {
             // Refresh history
             loadBackupHistory();
 
-            // Save to Database History
-            try {
-                dao.LichSuSaoLuuDAO dao = new dao.LichSuSaoLuuDAO();
-                model.LichSuSaoLuu ls = new model.LichSuSaoLuu();
-                File f = new File(outputPath);
-                ls.setTenFile(f.getName());
-                ls.setDuongDan(outputPath);
-                dao.insert(ls);
-
-                // Reload again to show new record
-                loadBackupHistory();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
             // Generate new filename for next backup
             String newPath = defaultBackupDir + "\\" + DatabaseBackup.generateBackupFilename();
             txtBackupPath.setText(newPath);
@@ -273,7 +293,18 @@ public class FormSaoLuu extends JFrame {
         String inputPath = txtRestorePath.getText().trim();
 
         if (inputPath.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn file backup để phục hồi!");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn file backup để phục hồi!", "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Check if file exists
+        File file = new File(inputPath);
+        if (!file.exists()) {
+            JOptionPane.showMessageDialog(this,
+                    "File không tồn tại!\nĐường dẫn: " + inputPath,
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -311,26 +342,34 @@ public class FormSaoLuu extends JFrame {
     private void loadBackupHistory() {
         modelHistory.setRowCount(0);
 
-        // Get directory from current backup path
-        String backupPath = txtBackupPath.getText().trim();
-        String scanDir = defaultBackupDir;
+        // Get all backup records from database
+        List<SaoLuu> backups = saoLuuDAO.getBackupsOnly();
 
-        if (!backupPath.isEmpty()) {
-            File file = new File(backupPath);
-            if (file.getParentFile() != null && file.getParentFile().exists()) {
-                scanDir = file.getParentFile().getAbsolutePath();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        for (SaoLuu backup : backups) {
+            // Check if file still exists
+            File file = new File(backup.getDuongDan());
+
+            if (!file.exists()) {
+                // File deleted - remove from database
+                saoLuuDAO.deleteById(backup.getMaSaoLuu());
+                continue; // Skip this record
             }
+
+            // File exists - add to table
+            String tenFile = backup.getTenFile();
+            String kichThuoc = backup.getFormattedSize();
+            String ngaySaoLuu = sdf.format(backup.getNgayThucHien());
+            String nguoiThucHien = "User ID: " + backup.getNguoiThucHien(); // Could join with users table for name
+            String duongDan = backup.getDuongDan();
+
+            modelHistory.addRow(new Object[] { tenFile, kichThuoc, ngaySaoLuu, nguoiThucHien, duongDan });
         }
 
-        List<String[]> history = DatabaseBackup.getBackupHistory(scanDir);
-
-        for (String[] record : history) {
-            modelHistory.addRow(record);
-        }
-
-        if (history.isEmpty()) {
-            JLabel lblEmpty = new JLabel("Chưa có file backup nào trong: " + scanDir, JLabel.CENTER);
-            lblEmpty.setForeground(Color.GRAY);
+        if (modelHistory.getRowCount() == 0) {
+            // Show empty message (optional)
+            System.out.println("Chưa có bản sao lưu nào trong database");
         }
     }
 }

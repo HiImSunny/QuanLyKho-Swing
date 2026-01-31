@@ -17,7 +17,23 @@ public class DatabaseBackup {
     private static final String DB_NAME = "qlkho_db";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
-    private static final String MYSQL_PATH = "C:\\\\xampp\\\\mysql\\\\bin\\\\";
+    private static final String MYSQL_PATH = "C:\\xampp\\mysql\\bin\\";
+
+    /**
+     * Validate path for whitespace issues
+     */
+    public static String validatePath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return "Đường dẫn không được để trống!";
+        }
+
+        // Check for whitespace in path (can cause issues with some MySQL commands)
+        if (path.contains(" ")) {
+            return "Cảnh báo: Đường dẫn chứa khoảng trắng.\nNên lưu vào thư mục không có khoảng trắng để tránh lỗi!";
+        }
+
+        return null; // No error
+    }
 
     /**
      * Backup database to SQL file
@@ -50,7 +66,7 @@ public class DatabaseBackup {
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                output.append(line).append("\\n");
+                output.append(line).append("\n");
                 System.out.println(line);
             }
 
@@ -72,7 +88,7 @@ public class DatabaseBackup {
     }
 
     /**
-     * Restore database from SQL file
+     * Restore database from SQL file using PowerShell (handles paths with spaces)
      */
     public static boolean restore(String inputPath) {
         try {
@@ -83,16 +99,21 @@ public class DatabaseBackup {
                 return false;
             }
 
-            // Build command as List
+            // Use PowerShell to handle paths with spaces
             List<String> commands = new ArrayList<>();
-            commands.add(MYSQL_PATH + "mysql.exe");
-            commands.add("-u" + DB_USER);
+            commands.add("powershell.exe");
+            commands.add("-Command");
+
+            // Build PowerShell command: Get-Content "path" | mysql -u root
+            StringBuilder psCommand = new StringBuilder();
+            psCommand.append("Get-Content \"").append(inputPath).append("\" | ");
+            psCommand.append("& \"").append(MYSQL_PATH).append("mysql.exe\" ");
+            psCommand.append("-u ").append(DB_USER);
             if (!DB_PASS.isEmpty()) {
-                commands.add("-p" + DB_PASS);
+                psCommand.append(" -p").append(DB_PASS);
             }
-            commands.add(DB_NAME);
-            commands.add("-e");
-            commands.add("source " + inputPath);
+
+            commands.add(psCommand.toString());
 
             ProcessBuilder pb = new ProcessBuilder(commands);
             pb.redirectErrorStream(true);
@@ -104,7 +125,7 @@ public class DatabaseBackup {
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
-                output.append(line).append("\\n");
+                output.append(line).append("\n");
                 System.out.println(line);
             }
 
@@ -123,49 +144,6 @@ public class DatabaseBackup {
             e.printStackTrace();
             return false;
         }
-    }
-
-    /**
-     * Get list of backup files in a directory
-     */
-    public static List<String[]> getBackupHistory(String backupDir) {
-        List<String[]> history = new ArrayList<>();
-
-        File dir = new File(backupDir);
-        if (!dir.exists() || !dir.isDirectory()) {
-            return history;
-        }
-
-        File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".sql"));
-        if (files == null)
-            return history;
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-
-        for (File file : files) {
-            String filename = file.getName();
-            long sizeBytes = file.length();
-            String size = formatFileSize(sizeBytes);
-            String date = sdf.format(new Date(file.lastModified()));
-
-            history.add(new String[] { filename, size, date, file.getAbsolutePath() });
-        }
-
-        // Sort by date descending
-        history.sort((a, b) -> b[2].compareTo(a[2]));
-
-        return history;
-    }
-
-    /**
-     * Format file size to human-readable format
-     */
-    private static String formatFileSize(long bytes) {
-        if (bytes < 1024)
-            return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(1024));
-        String pre = "KMGTPE".charAt(exp - 1) + "";
-        return String.format("%.1f %sB", bytes / Math.pow(1024, exp), pre);
     }
 
     /**
