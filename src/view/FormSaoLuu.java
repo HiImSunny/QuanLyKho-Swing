@@ -19,7 +19,7 @@ public class FormSaoLuu extends JFrame {
     private JTextField txtRestorePath;
     private JTable tableHistory;
     private DefaultTableModel modelHistory;
-    private JButton btnBrowseBackup, btnBackup, btnBrowseRestore, btnRestore, btnRefresh;
+    private JButton btnBrowseBackup, btnBackup, btnBrowseRestore, btnRestore, btnRefresh, btnDelete;
     private SaoLuuDAO saoLuuDAO;
 
     private String defaultBackupDir = System.getProperty("user.home") + "\\Desktop\\QuanLyKho_Backup";
@@ -98,7 +98,7 @@ public class FormSaoLuu extends JFrame {
 
         btnBackup = new JButton("Sao lưu ngay");
         btnBackup.setBackground(new Color(40, 167, 69));
-        btnBackup.setForeground(Color.WHITE);
+        btnBackup.setForeground(Color.BLACK);
         btnBackup.setPreferredSize(new Dimension(120, 30));
         btnBackup.setFocusPainted(false);
         btnBackup.addActionListener(e -> performBackup());
@@ -142,9 +142,18 @@ public class FormSaoLuu extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Lịch sử Sao Lưu"));
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        btnDelete = new JButton("Xóa backup");
+        btnDelete.setBackground(new Color(220, 53, 69));
+        btnDelete.setForeground(Color.BLACK);
+        btnDelete.setFocusPainted(false);
+        btnDelete.addActionListener(e -> deleteSelectedBackup());
+        topPanel.add(btnDelete);
+
         btnRefresh = new JButton("Làm mới");
         btnRefresh.addActionListener(e -> loadBackupHistory());
         topPanel.add(btnRefresh);
+
         panel.add(topPanel, BorderLayout.NORTH);
 
         String[] columns = { "Tên File", "Kích Thước", "Ngày Sao Lưu", "Người Thực Hiện", "Đường Dẫn" };
@@ -370,6 +379,65 @@ public class FormSaoLuu extends JFrame {
         if (modelHistory.getRowCount() == 0) {
             // Show empty message (optional)
             System.out.println("Chưa có bản sao lưu nào trong database");
+        }
+    }
+
+    private void deleteSelectedBackup() {
+        int selectedRow = tableHistory.getSelectedRow();
+
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn một bản sao lưu để xóa!",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String tenFile = modelHistory.getValueAt(selectedRow, 0).toString();
+        String duongDan = modelHistory.getValueAt(selectedRow, 4).toString();
+
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn xóa bản sao lưu này?\n" +
+                        "File: " + tenFile + "\n" +
+                        "\nFile sẽ bị xóa khỏi ổ đĩa và database!",
+                "Xác nhận xóa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean success = true;
+        StringBuilder errorMsg = new StringBuilder();
+
+        // Delete file from disk
+        File file = new File(duongDan);
+        if (file.exists()) {
+            if (!file.delete()) {
+                success = false;
+                errorMsg.append("- Không thể xóa file từ ổ đĩa\n");
+            }
+        }
+
+        // Delete record from database
+        if (!saoLuuDAO.deleteByPath(duongDan)) {
+            success = false;
+            errorMsg.append("- Không thể xóa record từ database\n");
+        }
+
+        if (success) {
+            JOptionPane.showMessageDialog(this,
+                    "Đã xóa bản sao lưu thành công!",
+                    "Thành công",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadBackupHistory();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Xóa bản sao lưu thất bại!\n" + errorMsg.toString(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
