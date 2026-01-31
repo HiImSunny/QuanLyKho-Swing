@@ -17,13 +17,10 @@ public class DatabaseBackup {
     private static final String DB_NAME = "qlkho_db";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
-    private static final String MYSQL_PATH = "C:\\xampp\\mysql\\bin\\"; // Adjust if needed
+    private static final String MYSQL_PATH = "C:\\\\xampp\\\\mysql\\\\bin\\\\";
 
     /**
      * Backup database to SQL file
-     * 
-     * @param outputPath Full path to output SQL file
-     * @return true if successful
      */
     public static boolean backup(String outputPath) {
         try {
@@ -32,29 +29,39 @@ public class DatabaseBackup {
                 outputPath += ".sql";
             }
 
-            // Build mysqldump command
-            String command = MYSQL_PATH + "mysqldump" +
-                    " -u" + DB_USER +
-                    (DB_PASS.isEmpty() ? "" : " -p" + DB_PASS) +
-                    " --databases " + DB_NAME +
-                    " --result-file=" + outputPath;
+            // Build command as List (proper way for ProcessBuilder)
+            List<String> commands = new ArrayList<>();
+            commands.add(MYSQL_PATH + "mysqldump.exe");
+            commands.add("-u" + DB_USER);
+            if (!DB_PASS.isEmpty()) {
+                commands.add("-p" + DB_PASS);
+            }
+            commands.add("--databases");
+            commands.add(DB_NAME);
+            commands.add("--result-file=" + outputPath);
 
-            // Execute command
-            Process process = Runtime.getRuntime().exec(command);
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            // Read output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            StringBuilder output = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\\n");
+                System.out.println(line);
+            }
+
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
                 System.out.println("Backup successful: " + outputPath);
                 return true;
             } else {
-                // Read error stream
-                BufferedReader errorReader = new BufferedReader(
-                        new InputStreamReader(process.getErrorStream()));
-                String line;
-                System.err.println("Backup failed:");
-                while ((line = errorReader.readLine()) != null) {
-                    System.err.println(line);
-                }
+                System.err.println("Backup failed with exit code: " + exitCode);
+                System.err.println("Output: " + output.toString());
                 return false;
             }
 
@@ -66,9 +73,6 @@ public class DatabaseBackup {
 
     /**
      * Restore database from SQL file
-     * 
-     * @param inputPath Full path to input SQL file
-     * @return true if successful
      */
     public static boolean restore(String inputPath) {
         try {
@@ -79,30 +83,39 @@ public class DatabaseBackup {
                 return false;
             }
 
-            // Build mysql command
-            String command = MYSQL_PATH + "mysql" +
-                    " -u" + DB_USER +
-                    (DB_PASS.isEmpty() ? "" : " -p" + DB_PASS) +
-                    " " + DB_NAME +
-                    " < " + inputPath;
+            // Build command as List
+            List<String> commands = new ArrayList<>();
+            commands.add(MYSQL_PATH + "mysql.exe");
+            commands.add("-u" + DB_USER);
+            if (!DB_PASS.isEmpty()) {
+                commands.add("-p" + DB_PASS);
+            }
+            commands.add(DB_NAME);
+            commands.add("-e");
+            commands.add("source " + inputPath);
 
-            // Execute command using cmd
-            String[] cmd = { "cmd.exe", "/c", command };
-            Process process = Runtime.getRuntime().exec(cmd);
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+
+            // Read output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            StringBuilder output = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\\n");
+                System.out.println(line);
+            }
+
             int exitCode = process.waitFor();
 
             if (exitCode == 0) {
                 System.out.println("Restore successful from: " + inputPath);
                 return true;
             } else {
-                // Read error stream
-                BufferedReader errorReader = new BufferedReader(
-                        new InputStreamReader(process.getErrorStream()));
-                String line;
-                System.err.println("Restore failed:");
-                while ((line = errorReader.readLine()) != null) {
-                    System.err.println(line);
-                }
+                System.err.println("Restore failed with exit code: " + exitCode);
+                System.err.println("Output: " + output.toString());
                 return false;
             }
 
@@ -114,9 +127,6 @@ public class DatabaseBackup {
 
     /**
      * Get list of backup files in a directory
-     * 
-     * @param backupDir Directory containing backup files
-     * @return List of backup file info [filename, size, date]
      */
     public static List<String[]> getBackupHistory(String backupDir) {
         List<String[]> history = new ArrayList<>();

@@ -220,4 +220,21 @@ public class KiemKeDAO {
 
         return prefix + "000001";
     }
+
+    // HỦY phiếu kiểm kê (đánh dấu trạng thái = 'da_huy')
+    public boolean cancelPhieu(int maKiemKe) {
+        String sql = "UPDATE kiem_ke SET trang_thai = 'da_huy' WHERE ma_kiem_ke = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, maKiemKe);
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

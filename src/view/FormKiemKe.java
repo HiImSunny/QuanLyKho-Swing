@@ -257,14 +257,15 @@ public class FormKiemKe extends JFrame {
                     ct.getTen_sp(),
                     ct.getDon_vi_tinh(),
                     ct.getTon_he_thong(),
-                    0, // Tồn thực tế - chờ nhập
-                    -ct.getTon_he_thong(), // Chênh lệch ban đầu (0 - tồn HT)
+                    ct.getTon_he_thong(), // Pre-fill tồn thực tế = tồn hệ thống
+                    0, // Chênh lệch ban đầu = 0
                     ""
             });
         }
 
         JOptionPane.showMessageDialog(this,
-                "Đã load " + tonKhoList.size() + " sản phẩm.\nVui lòng nhập số lượng thực tế vào cột 'Tồn Thực Tế'.");
+                "Đã load " + tonKhoList.size()
+                        + " sản phẩm.\nSố lượng thực tế đã được điền sẵn = tồn hệ thống.\nVui lòng kiểm tra và sửa những chỗ khác biệt.");
     }
 
     private void luuKiemKe() {

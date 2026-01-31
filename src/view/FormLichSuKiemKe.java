@@ -22,7 +22,7 @@ public class FormLichSuKiemKe extends JFrame {
     private DefaultTableModel modelPhieu;
     private JTable tableChiTiet;
     private DefaultTableModel modelChiTiet;
-    private JButton btnFilter, btnRefresh, btnExportCSV, btnExportPDF;
+    private JButton btnFilter, btnRefresh, btnExportCSV, btnExportPDF, btnCancel;
 
     private KhoDAO khoDAO;
     private KiemKeDAO kiemKeDAO;
@@ -113,6 +113,15 @@ public class FormLichSuKiemKe extends JFrame {
         btnExportPDF.addActionListener(e -> exportToPDF());
         filterPanel.add(btnExportPDF);
 
+        // Only admin can cancel
+        if (currentUser.getRole().equals("admin")) {
+            btnCancel = new JButton("Hủy phiếu");
+            btnCancel.setBackground(new Color(220, 53, 69));
+            btnCancel.setForeground(Color.BLACK);
+            btnCancel.addActionListener(e -> cancelPhieu());
+            filterPanel.add(btnCancel);
+        }
+
         panel.add(filterPanel, BorderLayout.NORTH);
 
         // Table
@@ -194,13 +203,22 @@ public class FormLichSuKiemKe extends JFrame {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
         for (KiemKe kk : list) {
+            String trangThai = "";
+            if (kk.getTrang_thai().equals("da_huy")) {
+                trangThai = "Đã hủy";
+            } else if (kk.getTrang_thai().equals("hoan_thanh")) {
+                trangThai = "Hoàn thành";
+            } else {
+                trangThai = "Đang kiểm";
+            }
+
             modelPhieu.addRow(new Object[] {
                     kk.getMa_kiem_ke(),
                     kk.getSo_phieu(),
                     sdf.format(kk.getNgay_kiem_ke()),
                     kk.getTen_kho() != null ? kk.getTen_kho() : "",
                     kk.getTen_nguoi_kiem_ke() != null ? kk.getTen_nguoi_kiem_ke() : "",
-                    kk.getTrang_thai().equals("hoan_thanh") ? "Hoàn thành" : "Đang kiểm",
+                    trangThai,
                     kk.getGhi_chu() != null ? kk.getGhi_chu() : ""
             });
         }
@@ -382,6 +400,46 @@ public class FormLichSuKiemKe extends JFrame {
                 JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
                 ex.printStackTrace();
             }
+        }
+    }
+
+    private void cancelPhieu() {
+        int selectedRow = tablePhieu.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu cần hủy!");
+            return;
+        }
+
+        String soPhieu = modelPhieu.getValueAt(selectedRow, 1).toString();
+        String trangThai = modelPhieu.getValueAt(selectedRow, 5).toString();
+
+        if (trangThai.equals("Đã hủy")) {
+            JOptionPane.showMessageDialog(this, "Phiếu này đã bị hủy rồi!");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn HỦY phiếu " + soPhieu + "?\n" +
+                        "Lưu ý: Phiếu sẽ được đánh dấu hủy, không xóa khỏi hệ thống.",
+                "Xác nhận hủy phiếu", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            int maKiemKe = (int) modelPhieu.getValueAt(selectedRow, 0);
+            boolean success = kiemKeDAO.cancelPhieu(maKiemKe);
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thành công!");
+                loadPhieuKiemKe();
+            } else {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thất bại!");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }

@@ -43,7 +43,7 @@ CREATE TABLE `chi_tiet_kiem_ke` (
   KEY `ma_sp` (`ma_sp`),
   CONSTRAINT `chi_tiet_kiem_ke_ibfk_1` FOREIGN KEY (`ma_kiem_ke`) REFERENCES `kiem_ke` (`ma_kiem_ke`) ON DELETE CASCADE,
   CONSTRAINT `chi_tiet_kiem_ke_ibfk_2` FOREIGN KEY (`ma_sp`) REFERENCES `san_pham` (`ma_sp`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -52,7 +52,7 @@ CREATE TABLE `chi_tiet_kiem_ke` (
 
 LOCK TABLES `chi_tiet_kiem_ke` WRITE;
 /*!40000 ALTER TABLE `chi_tiet_kiem_ke` DISABLE KEYS */;
-INSERT INTO `chi_tiet_kiem_ke` VALUES (1,1,1,8,7,-1,'Thiếu 1 laptop - đã báo cáo'),(2,1,2,45,45,0,'OK'),(3,1,11,60,58,-2,'Thiếu 2 thùng mì'),(4,1,16,15,15,0,'OK');
+INSERT INTO `chi_tiet_kiem_ke` VALUES (1,1,1,8,7,-1,'Thiếu 1 laptop - đã báo cáo'),(2,1,2,45,45,0,'OK'),(3,1,11,60,58,-2,'Thiếu 2 thùng mì'),(4,1,16,15,15,0,'OK'),(5,2,21,100,20,-80,''),(6,2,24,30,0,-30,''),(7,2,3,10,0,-10,''),(8,2,13,90,0,-90,''),(9,2,17,25,0,-25,''),(10,2,19,50,0,-50,''),(11,2,32,20,0,-20,''),(12,2,6,500,0,-500,''),(13,2,7,200,0,-200,''),(14,2,14,70,0,-70,''),(15,2,18,40,0,-40,''),(16,2,2,45,0,-45,''),(17,2,25,55,0,-55,''),(18,2,9,150,0,-150,''),(19,2,23,18,0,-18,''),(20,2,1,9,0,-9,''),(21,2,31,12,0,-12,''),(22,2,11,60,0,-60,''),(23,2,16,15,0,-15,''),(24,2,12,40,0,-40,''),(25,2,22,45,0,-45,''),(26,2,26,40,0,-40,''),(27,2,8,80,0,-80,''),(28,2,15,35,0,-35,''),(29,2,4,20,0,-20,''),(30,2,28,30,0,-30,''),(31,2,27,50,0,-50,''),(32,2,29,120,0,-120,''),(33,2,5,100,0,-100,'');
 /*!40000 ALTER TABLE `chi_tiet_kiem_ke` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -107,7 +107,7 @@ CREATE TABLE `chi_tiet_phieu_xuat` (
   KEY `ma_sp` (`ma_sp`),
   CONSTRAINT `chi_tiet_phieu_xuat_ibfk_1` FOREIGN KEY (`ma_phieu_xuat`) REFERENCES `phieu_xuat` (`ma_phieu_xuat`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `chi_tiet_phieu_xuat_ibfk_2` FOREIGN KEY (`ma_sp`) REFERENCES `san_pham` (`ma_sp`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,7 +116,7 @@ CREATE TABLE `chi_tiet_phieu_xuat` (
 
 LOCK TABLES `chi_tiet_phieu_xuat` WRITE;
 /*!40000 ALTER TABLE `chi_tiet_phieu_xuat` DISABLE KEYS */;
-INSERT INTO `chi_tiet_phieu_xuat` VALUES (1,1,6,200,3000.00,600000.00),(2,1,7,100,12000.00,1200000.00),(3,1,8,30,25000.00,750000.00),(4,1,9,50,95000.00,4750000.00),(5,2,1,3,15000000.00,45000000.00),(6,2,2,15,120000.00,1800000.00),(7,2,3,2,890000.00,1780000.00),(8,2,4,5,650000.00,3250000.00),(9,3,11,10,100000.00,1000000.00),(10,3,12,10,130000.00,1300000.00),(11,3,13,30,35000.00,1050000.00),(12,3,14,10,75000.00,750000.00),(13,4,3,2,890000.00,1780000.00);
+INSERT INTO `chi_tiet_phieu_xuat` VALUES (1,1,6,200,3000.00,600000.00),(2,1,7,100,12000.00,1200000.00),(3,1,8,30,25000.00,750000.00),(4,1,9,50,95000.00,4750000.00),(5,2,1,3,15000000.00,45000000.00),(6,2,2,15,120000.00,1800000.00),(7,2,3,2,890000.00,1780000.00),(8,2,4,5,650000.00,3250000.00),(9,3,11,10,100000.00,1000000.00),(10,3,12,10,130000.00,1300000.00),(11,3,13,30,35000.00,1050000.00),(12,3,14,10,75000.00,750000.00),(13,4,3,2,890000.00,1780000.00),(14,5,2,2,120000.00,240000.00);
 /*!40000 ALTER TABLE `chi_tiet_phieu_xuat` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -203,7 +203,7 @@ CREATE TABLE `kiem_ke` (
   KEY `ma_kho` (`ma_kho`),
   KEY `nguoi_kiem_ke` (`nguoi_kiem_ke`),
   CONSTRAINT `kiem_ke_ibfk_2` FOREIGN KEY (`nguoi_kiem_ke`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,8 +212,33 @@ CREATE TABLE `kiem_ke` (
 
 LOCK TABLES `kiem_ke` WRITE;
 /*!40000 ALTER TABLE `kiem_ke` DISABLE KEYS */;
-INSERT INTO `kiem_ke` VALUES (1,'KK-20260128-001','2026-01-28',1,2,'hoan_thanh','Kiểm kê định kỳ tháng 1','2026-01-30 11:42:37');
+INSERT INTO `kiem_ke` VALUES (1,'KK-20260128-001','2026-01-28',1,2,'hoan_thanh','Kiểm kê định kỳ tháng 1','2026-01-30 11:42:37'),(2,'KK-20260127','2026-01-31',1,1,'hoan_thanh','','2026-01-31 09:27:43');
 /*!40000 ALTER TABLE `kiem_ke` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lich_su_sao_luu`
+--
+
+DROP TABLE IF EXISTS `lich_su_sao_luu`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lich_su_sao_luu` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ten_file` varchar(255) NOT NULL,
+  `duong_dan` varchar(500) NOT NULL,
+  `thoi_gian` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lich_su_sao_luu`
+--
+
+LOCK TABLES `lich_su_sao_luu` WRITE;
+/*!40000 ALTER TABLE `lich_su_sao_luu` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lich_su_sao_luu` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -289,6 +314,7 @@ CREATE TABLE `phieu_nhap` (
   `tong_tien` decimal(15,2) DEFAULT 0.00,
   `ghi_chu` text DEFAULT NULL,
   `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp(),
+  `trang_thai` varchar(20) DEFAULT 'hoan_thanh',
   PRIMARY KEY (`ma_phieu_nhap`),
   UNIQUE KEY `so_phieu` (`so_phieu`),
   KEY `nguoi_lap` (`nguoi_lap`),
@@ -306,7 +332,7 @@ CREATE TABLE `phieu_nhap` (
 
 LOCK TABLES `phieu_nhap` WRITE;
 /*!40000 ALTER TABLE `phieu_nhap` DISABLE KEYS */;
-INSERT INTO `phieu_nhap` VALUES (1,'PN-20260115-001','2026-01-15',1,NULL,2,24850000.00,'Nhập lô laptop Dell','2026-01-30 10:53:15'),(2,'PN-20260118-002','2026-01-18',2,NULL,2,15400000.00,'Nhập bút, giấy A4','2026-01-30 10:53:15'),(3,'PN-20260120-003','2026-01-20',3,NULL,3,8750000.00,'Nhập mì, nước ngọt','2026-01-30 10:53:15'),(4,'PN-20260125-004','2026-01-25',4,NULL,2,12500000.00,'Nhập đồ gia dụng','2026-01-30 10:53:15'),(5,'PN-20260128-005','2026-01-28',5,NULL,3,4850000.00,'Nhập sách, truyện','2026-01-30 10:53:15'),(6,'PN1769785483198','2026-01-30',1,NULL,1,500.00,'','2026-01-30 15:05:19'),(7,'PN1769840537396','2026-01-31',2,3,1,1500000.00,'','2026-01-31 06:22:47');
+INSERT INTO `phieu_nhap` VALUES (1,'PN-20260115-001','2026-01-15',1,NULL,2,24850000.00,'Nhập lô laptop Dell','2026-01-30 10:53:15','hoan_thanh'),(2,'PN-20260118-002','2026-01-18',2,NULL,2,15400000.00,'Nhập bút, giấy A4','2026-01-30 10:53:15','hoan_thanh'),(3,'PN-20260120-003','2026-01-20',3,NULL,3,8750000.00,'Nhập mì, nước ngọt','2026-01-30 10:53:15','hoan_thanh'),(4,'PN-20260125-004','2026-01-25',4,NULL,2,12500000.00,'Nhập đồ gia dụng','2026-01-30 10:53:15','hoan_thanh'),(5,'PN-20260128-005','2026-01-28',5,NULL,3,4850000.00,'Nhập sách, truyện','2026-01-30 10:53:15','hoan_thanh'),(6,'PN1769785483198','2026-01-30',1,NULL,1,500.00,'','2026-01-30 15:05:19','hoan_thanh'),(7,'PN1769840537396','2026-01-31',2,3,1,1500000.00,'','2026-01-31 06:22:47','hoan_thanh');
 /*!40000 ALTER TABLE `phieu_nhap` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -327,6 +353,7 @@ CREATE TABLE `phieu_xuat` (
   `tong_tien` decimal(15,2) DEFAULT 0.00,
   `ghi_chu` text DEFAULT NULL,
   `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp(),
+  `trang_thai` varchar(20) DEFAULT 'hoan_thanh',
   PRIMARY KEY (`ma_phieu_xuat`),
   UNIQUE KEY `so_phieu` (`so_phieu`),
   KEY `nguoi_lap` (`nguoi_lap`),
@@ -335,7 +362,7 @@ CREATE TABLE `phieu_xuat` (
   CONSTRAINT `phieu_xuat_ibfk_1` FOREIGN KEY (`nguoi_lap`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `phieu_xuat_ibfk_2` FOREIGN KEY (`ma_kh`) REFERENCES `khach_hang` (`ma_kh`) ON DELETE SET NULL,
   CONSTRAINT `phieu_xuat_ibfk_3` FOREIGN KEY (`ma_kho`) REFERENCES `kho` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -344,7 +371,7 @@ CREATE TABLE `phieu_xuat` (
 
 LOCK TABLES `phieu_xuat` WRITE;
 /*!40000 ALTER TABLE `phieu_xuat` DISABLE KEYS */;
-INSERT INTO `phieu_xuat` VALUES (1,'PX-20260122-001','2026-01-22',1,NULL,2,5250000.00,'Xuất văn phòng phẩm cho trường','2026-01-30 10:53:15'),(2,'PX-20260126-002','2026-01-26',2,NULL,3,18500000.00,'Xuất laptop, phụ kiện','2026-01-30 10:53:15'),(3,'PX-20260129-003','2026-01-29',3,NULL,2,3850000.00,'Xuất thực phẩm','2026-01-30 10:53:15'),(4,'PX1769840599250','2026-01-31',5,1,1,1780000.00,'','2026-01-31 06:23:35');
+INSERT INTO `phieu_xuat` VALUES (1,'PX-20260122-001','2026-01-22',1,NULL,2,5250000.00,'Xuất văn phòng phẩm cho trường','2026-01-30 10:53:15','hoan_thanh'),(2,'PX-20260126-002','2026-01-26',2,NULL,3,18500000.00,'Xuất laptop, phụ kiện','2026-01-30 10:53:15','hoan_thanh'),(3,'PX-20260129-003','2026-01-29',3,NULL,2,3850000.00,'Xuất thực phẩm','2026-01-30 10:53:15','hoan_thanh'),(4,'PX1769840599250','2026-01-31',5,1,1,1780000.00,'','2026-01-31 06:23:35','hoan_thanh'),(5,'PX1769852207637','2026-01-31',5,1,1,240000.00,'','2026-01-31 09:37:05','hoan_thanh');
 /*!40000 ALTER TABLE `phieu_xuat` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -441,7 +468,7 @@ CREATE TABLE `ton_kho` (
 
 LOCK TABLES `ton_kho` WRITE;
 /*!40000 ALTER TABLE `ton_kho` DISABLE KEYS */;
-INSERT INTO `ton_kho` VALUES (1,1,1,9,'2026-01-31 02:20:41'),(2,2,1,45,'2026-01-31 02:20:41'),(3,3,1,10,'2026-01-31 06:23:35'),(4,4,1,20,'2026-01-31 02:20:41'),(5,5,1,100,'2026-01-31 02:20:41'),(6,6,1,500,'2026-01-31 02:20:41'),(7,7,1,200,'2026-01-31 02:20:41'),(8,8,1,80,'2026-01-31 02:20:41'),(9,9,1,150,'2026-01-31 02:20:41'),(10,10,2,120,'2026-01-31 05:13:54'),(11,11,1,60,'2026-01-31 02:20:41'),(12,12,1,40,'2026-01-31 02:20:41'),(13,13,1,90,'2026-01-31 02:20:41'),(14,14,1,70,'2026-01-31 02:20:41'),(15,15,1,35,'2026-01-31 02:20:41'),(16,16,1,15,'2026-01-31 02:20:41'),(17,17,1,25,'2026-01-31 02:20:41'),(18,18,1,40,'2026-01-31 02:20:41'),(19,19,1,50,'2026-01-31 02:20:41'),(20,20,2,65,'2026-01-31 05:13:54'),(21,21,1,100,'2026-01-31 02:20:41'),(22,22,1,45,'2026-01-31 02:20:41'),(23,23,1,18,'2026-01-31 02:20:41'),(24,24,1,30,'2026-01-31 02:20:41'),(25,25,1,55,'2026-01-31 02:20:41'),(26,26,1,40,'2026-01-31 02:20:41'),(27,27,1,50,'2026-01-31 02:20:41'),(28,28,1,30,'2026-01-31 02:20:41'),(29,29,1,120,'2026-01-31 02:20:41'),(30,30,2,25,'2026-01-31 05:13:54'),(31,31,1,12,'2026-01-31 02:20:41'),(32,32,1,20,'2026-01-31 02:20:41'),(66,8,2,85,'2026-01-31 05:13:54'),(69,9,2,25,'2026-01-31 05:13:54'),(70,18,2,25,'2026-01-31 05:13:54'),(71,19,2,25,'2026-01-31 05:13:54'),(72,28,2,25,'2026-01-31 05:13:54'),(73,29,2,25,'2026-01-31 05:13:54'),(74,32,3,3,'2026-01-31 06:22:47');
+INSERT INTO `ton_kho` VALUES (1,1,1,9,'2026-01-31 02:20:41'),(2,2,1,43,'2026-01-31 09:37:05'),(3,3,1,10,'2026-01-31 06:23:35'),(4,4,1,20,'2026-01-31 02:20:41'),(5,5,1,100,'2026-01-31 02:20:41'),(6,6,1,500,'2026-01-31 02:20:41'),(7,7,1,200,'2026-01-31 02:20:41'),(8,8,1,80,'2026-01-31 02:20:41'),(9,9,1,150,'2026-01-31 02:20:41'),(10,10,2,120,'2026-01-31 05:13:54'),(11,11,1,60,'2026-01-31 02:20:41'),(12,12,1,40,'2026-01-31 02:20:41'),(13,13,1,90,'2026-01-31 02:20:41'),(14,14,1,70,'2026-01-31 02:20:41'),(15,15,1,35,'2026-01-31 02:20:41'),(16,16,1,15,'2026-01-31 02:20:41'),(17,17,1,25,'2026-01-31 02:20:41'),(18,18,1,40,'2026-01-31 02:20:41'),(19,19,1,50,'2026-01-31 02:20:41'),(20,20,2,65,'2026-01-31 05:13:54'),(21,21,1,100,'2026-01-31 02:20:41'),(22,22,1,45,'2026-01-31 02:20:41'),(23,23,1,18,'2026-01-31 02:20:41'),(24,24,1,30,'2026-01-31 02:20:41'),(25,25,1,55,'2026-01-31 02:20:41'),(26,26,1,40,'2026-01-31 02:20:41'),(27,27,1,50,'2026-01-31 02:20:41'),(28,28,1,30,'2026-01-31 02:20:41'),(29,29,1,120,'2026-01-31 02:20:41'),(30,30,2,25,'2026-01-31 05:13:54'),(31,31,1,12,'2026-01-31 02:20:41'),(32,32,1,20,'2026-01-31 02:20:41'),(66,8,2,85,'2026-01-31 05:13:54'),(69,9,2,25,'2026-01-31 05:13:54'),(70,18,2,25,'2026-01-31 05:13:54'),(71,19,2,25,'2026-01-31 05:13:54'),(72,28,2,25,'2026-01-31 05:13:54'),(73,29,2,25,'2026-01-31 05:13:54'),(74,32,3,3,'2026-01-31 06:22:47');
 /*!40000 ALTER TABLE `ton_kho` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -484,4 +511,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-31 16:21:54
+-- Dump completed on 2026-01-31 17:25:19

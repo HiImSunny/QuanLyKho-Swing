@@ -242,6 +242,21 @@ public class FormSaoLuu extends JFrame {
             // Refresh history
             loadBackupHistory();
 
+            // Save to Database History
+            try {
+                dao.LichSuSaoLuuDAO dao = new dao.LichSuSaoLuuDAO();
+                model.LichSuSaoLuu ls = new model.LichSuSaoLuu();
+                File f = new File(outputPath);
+                ls.setTenFile(f.getName());
+                ls.setDuongDan(outputPath);
+                dao.insert(ls);
+
+                // Reload again to show new record
+                loadBackupHistory();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
             // Generate new filename for next backup
             String newPath = defaultBackupDir + "\\" + DatabaseBackup.generateBackupFilename();
             txtBackupPath.setText(newPath);
@@ -296,14 +311,25 @@ public class FormSaoLuu extends JFrame {
     private void loadBackupHistory() {
         modelHistory.setRowCount(0);
 
-        List<String[]> history = DatabaseBackup.getBackupHistory(defaultBackupDir);
+        // Get directory from current backup path
+        String backupPath = txtBackupPath.getText().trim();
+        String scanDir = defaultBackupDir;
+
+        if (!backupPath.isEmpty()) {
+            File file = new File(backupPath);
+            if (file.getParentFile() != null && file.getParentFile().exists()) {
+                scanDir = file.getParentFile().getAbsolutePath();
+            }
+        }
+
+        List<String[]> history = DatabaseBackup.getBackupHistory(scanDir);
 
         for (String[] record : history) {
             modelHistory.addRow(record);
         }
 
         if (history.isEmpty()) {
-            JLabel lblEmpty = new JLabel("Chưa có file backup nào", JLabel.CENTER);
+            JLabel lblEmpty = new JLabel("Chưa có file backup nào trong: " + scanDir, JLabel.CENTER);
             lblEmpty.setForeground(Color.GRAY);
         }
     }

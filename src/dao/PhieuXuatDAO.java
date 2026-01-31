@@ -253,4 +253,98 @@ public class PhieuXuatDAO {
 
         return list;
     }
+
+    // HỦY phiếu xuất (đánh dấu trạng thái = 'da_huy' VÀ revert tồn kho)
+    public boolean cancelPhieu(int maPhieuXuat) {
+        Connection conn = null;
+        PreparedStatement pstUpdate = null;
+        PreparedStatement pstGetChiTiet = null;
+        PreparedStatement pstUpdateTonKho = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false); // Transaction
+
+            // 1. Kiểm tra trạng thái hiện tại
+            String sqlCheck = "SELECT trang_thai FROM phieu_xuat WHERE ma_phieu_xuat = ?";
+            pstUpdate = conn.prepareStatement(sqlCheck);
+            pstUpdate.setInt(1, maPhieuXuat);
+            rs = pstUpdate.executeQuery();
+
+            if (rs.next()) {
+                String trangThai = rs.getString("trang_thai");
+                if ("da_huy".equals(trangThai)) {
+                    return false; // Đã hủy rồi
+                }
+            }
+            rs.close();
+            pstUpdate.close();
+
+            // 2. Lấy chi tiết phiếu xuất để revert tồn kho
+            String sqlChiTiet = "SELECT ct.ma_sp, ct.so_luong, px.ma_kho " +
+                    "FROM chi_tiet_phieu_xuat ct " +
+                    "JOIN phieu_xuat px ON ct.ma_phieu_xuat = px.ma_phieu_xuat " +
+                    "WHERE ct.ma_phieu_xuat = ?";
+            pstGetChiTiet = conn.prepareStatement(sqlChiTiet);
+            pstGetChiTiet.setInt(1, maPhieuXuat);
+            rs = pstGetChiTiet.executeQuery();
+
+            // 3. Revert tồn kho (CỘNG lại số lượng đã xuất)
+            String sqlUpdateTonKho = "UPDATE ton_kho SET so_luong_ton = so_luong_ton + ? " +
+                    "WHERE ma_kho = ? AND ma_sp = ?";
+            pstUpdateTonKho = conn.prepareStatement(sqlUpdateTonKho);
+
+            while (rs.next()) {
+                int maSP = rs.getInt("ma_sp");
+                int soLuong = rs.getInt("so_luong");
+                Integer maKho = rs.getObject("ma_kho", Integer.class);
+
+                if (maKho != null) {
+                    pstUpdateTonKho.setInt(1, soLuong);
+                    pstUpdateTonKho.setInt(2, maKho);
+                    pstUpdateTonKho.setInt(3, maSP);
+                    pstUpdateTonKho.addBatch();
+                }
+            }
+            pstUpdateTonKho.executeBatch();
+
+            // 4. Cập nhật trạng thái phiếu xuất
+            String sqlUpdate = "UPDATE phieu_xuat SET trang_thai = 'da_huy' WHERE ma_phieu_xuat = ?";
+            pstUpdate = conn.prepareStatement(sqlUpdate);
+            pstUpdate.setInt(1, maPhieuXuat);
+            pstUpdate.executeUpdate();
+
+            conn.commit();
+            return true;
+
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (rs != null)
+                    rs.close();
+                if (pstUpdate != null)
+                    pstUpdate.close();
+                if (pstGetChiTiet != null)
+                    pstGetChiTiet.close();
+                if (pstUpdateTonKho != null)
+                    pstUpdateTonKho.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

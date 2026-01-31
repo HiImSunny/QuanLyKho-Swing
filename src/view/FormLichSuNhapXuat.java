@@ -115,6 +115,15 @@ public class FormLichSuNhapXuat extends JFrame {
         btnExportCSVNhap.addActionListener(e -> exportAllPhieuNhapToCSV());
         filterPanel.add(btnExportCSVNhap);
 
+        // Only admin can cancel
+        if (currentUser.getRole().equals("admin")) {
+            JButton btnCancelNhap = new JButton("Hủy phiếu");
+            btnCancelNhap.setBackground(new Color(220, 53, 69));
+            btnCancelNhap.setForeground(Color.BLACK);
+            btnCancelNhap.addActionListener(e -> cancelPhieuNhap());
+            filterPanel.add(btnCancelNhap);
+        }
+
         panel.add(filterPanel, BorderLayout.NORTH);
 
         // Split pane for list and details
@@ -227,6 +236,15 @@ public class FormLichSuNhapXuat extends JFrame {
         btnExportCSVXuat.setForeground(Color.BLACK);
         btnExportCSVXuat.addActionListener(e -> exportAllPhieuXuatToCSV());
         filterPanel.add(btnExportCSVXuat);
+
+        // Only admin can cancel
+        if (currentUser.getRole().equals("admin")) {
+            JButton btnCancelXuat = new JButton("Hủy phiếu");
+            btnCancelXuat.setBackground(new Color(220, 53, 69));
+            btnCancelXuat.setForeground(Color.BLACK);
+            btnCancelXuat.addActionListener(e -> cancelPhieuXuat());
+            filterPanel.add(btnCancelXuat);
+        }
 
         panel.add(filterPanel, BorderLayout.NORTH);
 
@@ -853,6 +871,86 @@ public class FormLichSuNhapXuat extends JFrame {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi khi xuất PDF: " + e.getMessage());
             }
+        }
+    }
+
+    private void cancelPhieuNhap() {
+        int selectedRow = tablePhieuNhap.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu cần hủy!");
+            return;
+        }
+
+        int stt = selectedRow;
+        if (stt >= listPhieuNhap.size()) {
+            JOptionPane.showMessageDialog(this, "Phiếu không hợp lệ!");
+            return;
+        }
+
+        PhieuNhap phieu = listPhieuNhap.get(stt);
+        String soPhieu = phieu.getSo_phieu();
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn HỦY phiếu nhập " + soPhieu + "?\n" +
+                        "Lưu ý: Tồn kho sẽ được revert (trừ đi số lượng đã nhập).",
+                "Xác nhận hủy phiếu", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            boolean success = phieuNhapDAO.cancelPhieu(phieu.getMa_phieu_nhap());
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thành công! Tồn kho đã được revert.");
+                loadPhieuNhap();
+            } else {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thất bại! Phiếu có thể đã bị hủy rồi.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void cancelPhieuXuat() {
+        int selectedRow = tablePhieuXuat.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu cần hủy!");
+            return;
+        }
+
+        int stt = selectedRow;
+        if (stt >= listPhieuXuat.size()) {
+            JOptionPane.showMessageDialog(this, "Phiếu không hợp lệ!");
+            return;
+        }
+
+        PhieuXuat phieu = listPhieuXuat.get(stt);
+        String soPhieu = phieu.getSo_phieu();
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn HỦY phiếu xuất " + soPhieu + "?\n" +
+                        "Lưu ý: Tồn kho sẽ được revert (cộng lại số lượng đã xuất).",
+                "Xác nhận hủy phiếu", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            boolean success = phieuXuatDAO.cancelPhieu(phieu.getMa_phieu_xuat());
+
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thành công! Tồn kho đã được revert.");
+                loadPhieuXuat();
+            } else {
+                JOptionPane.showMessageDialog(this, "Hủy phiếu thất bại! Phiếu có thể đã bị hủy rồi.");
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }
