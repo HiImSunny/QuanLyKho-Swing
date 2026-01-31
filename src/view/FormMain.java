@@ -190,6 +190,12 @@ public class FormMain extends JFrame {
             new FormDoiMatKhau(currentUser).setVisible(true);
         });
 
+        JMenuItem itemSaoLuu = new JMenuItem("Sao lưu dữ liệu");
+        itemSaoLuu.setFont(new Font("Arial", Font.PLAIN, 13));
+        itemSaoLuu.addActionListener(e -> {
+            new FormSaoLuu(currentUser).setVisible(true);
+        });
+
         JMenuItem itemDangXuat = new JMenuItem("Đăng xuất");
         itemDangXuat.setFont(new Font("Arial", Font.PLAIN, 13));
         itemDangXuat.addActionListener(e -> dangXuat());
@@ -201,6 +207,7 @@ public class FormMain extends JFrame {
         menuHeThong.add(itemTrangChu);
         menuHeThong.addSeparator();
         menuHeThong.add(itemDoiMatKhau);
+        menuHeThong.add(itemSaoLuu);
         menuHeThong.addSeparator();
         menuHeThong.add(itemDangXuat);
         menuHeThong.add(itemThoat);
@@ -243,7 +250,7 @@ public class FormMain extends JFrame {
         itemQuanLyUser.setFont(new Font("Arial", Font.PLAIN, 13));
         itemQuanLyUser.addActionListener(e -> {
             if (currentUser.getRole().equals("admin")) {
-                new FormQuanLyNguoiDung(currentUser).setVisible(true); // ← TRUYỀN currentUser VÀO
+                new FormQuanLyNguoiDung(currentUser).setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Bạn không có quyền!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
@@ -274,16 +281,30 @@ public class FormMain extends JFrame {
             new FormXuatKho(currentUser).setVisible(true);
         });
 
+        JMenuItem itemKiemKe = new JMenuItem("Kiểm kê kho");
+        itemKiemKe.setFont(new Font("Arial", Font.PLAIN, 13));
+        itemKiemKe.addActionListener(e -> {
+            new FormKiemKe(currentUser).setVisible(true);
+        });
+
         JMenuItem itemLichSu = new JMenuItem("Lịch sử nhập/xuất");
         itemLichSu.setFont(new Font("Arial", Font.PLAIN, 13));
         itemLichSu.addActionListener(e -> {
             new FormLichSuNhapXuat(currentUser).setVisible(true);
         });
 
+        JMenuItem itemLichSuKiemKe = new JMenuItem("Lịch sử kiểm kê");
+        itemLichSuKiemKe.setFont(new Font("Arial", Font.PLAIN, 13));
+        itemLichSuKiemKe.addActionListener(e -> {
+            new FormLichSuKiemKe(currentUser).setVisible(true);
+        });
+
         menuNghiepVu.add(itemNhapKho);
         menuNghiepVu.add(itemXuatKho);
+        menuNghiepVu.add(itemKiemKe);
         menuNghiepVu.addSeparator();
         menuNghiepVu.add(itemLichSu);
+        menuNghiepVu.add(itemLichSuKiemKe);
 
         // Menu Báo cáo
         JMenu menuBaoCao = new JMenu("Báo cáo");
@@ -331,7 +352,7 @@ public class FormMain extends JFrame {
 
     private void showAbout() {
         String info = "HỆ THỐNG QUẢN LÝ KHO HÀNG\n\n" +
-                "Phiên bản: 1.3.0\n" +
+                "Phiên bản: 1.4.0\n" +
                 "Công nghệ: Java Swing + MySQL\n" +
                 "Năm: 2026\n\n" +
                 "Phát triển bởi: adselvn & meankhoiii\n" +
