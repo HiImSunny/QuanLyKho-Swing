@@ -1,7 +1,0 @@
--- Tạo bảng lịch sử sao lưu
-CREATE TABLE IF NOT EXISTS lich_su_sao_luu (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ten_file VARCHAR(255) NOT NULL,
-    duong_dan VARCHAR(500) NOT NULL,
-    thoi_gian DATETIME DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
