@@ -206,7 +206,10 @@ public class PhieuNhapDAO {
     // GET CHI TIẾT phiếu nhập
     public List<ChiTietPhieuNhap> getChiTiet(int maPhieuNhap) {
         List<ChiTietPhieuNhap> list = new ArrayList<>();
-        String sql = "SELECT * FROM chi_tiet_phieu_nhap WHERE ma_phieu_nhap = ?";
+        String sql = "SELECT ct.*, sp.ten_sp " +
+                "FROM chi_tiet_phieu_nhap ct " +
+                "JOIN san_pham sp ON ct.ma_sp = sp.ma_sp " +
+                "WHERE ct.ma_phieu_nhap = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -219,6 +222,7 @@ public class PhieuNhapDAO {
                         rs.getInt("id"),
                         rs.getInt("ma_phieu_nhap"),
                         rs.getInt("ma_sp"),
+                        rs.getString("ten_sp"),
                         rs.getInt("so_luong"),
                         rs.getBigDecimal("don_gia"),
                         rs.getBigDecimal("thanh_tien"));

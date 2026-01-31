@@ -277,7 +277,7 @@ public class FormMain extends JFrame {
         JMenuItem itemLichSu = new JMenuItem("Lịch sử nhập/xuất");
         itemLichSu.setFont(new Font("Arial", Font.PLAIN, 13));
         itemLichSu.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Mở form Lịch sử (chưa làm)");
+            new FormLichSuNhapXuat(currentUser).setVisible(true);
         });
 
         menuNghiepVu.add(itemNhapKho);
@@ -331,7 +331,7 @@ public class FormMain extends JFrame {
 
     private void showAbout() {
         String info = "HỆ THỐNG QUẢN LÝ KHO HÀNG\n\n" +
-                "Phiên bản: 1.0\n" +
+                "Phiên bản: 1.3.0\n" +
                 "Công nghệ: Java Swing + MySQL\n" +
                 "Năm: 2026\n\n" +
                 "Phát triển bởi: adselvn & meankhoiii\n" +

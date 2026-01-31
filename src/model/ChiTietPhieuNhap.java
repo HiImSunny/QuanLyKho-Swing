@@ -6,16 +6,18 @@ public class ChiTietPhieuNhap {
     private int id;
     private int ma_phieu_nhap;
     private int ma_sp;
+    private String ten_sp; // For display (from JOIN)
     private int so_luong;
     private BigDecimal don_gia;
     private BigDecimal thanh_tien; // GENERATED COLUMN - chỉ dùng khi SELECT
 
-    // Constructor đầy đủ (dùng khi SELECT từ DB)
-    public ChiTietPhieuNhap(int id, int ma_phieu_nhap, int ma_sp, 
-                            int so_luong, BigDecimal don_gia, BigDecimal thanh_tien) {
+    // Constructor đầy đủ (dùng khi SELECT từ DB với JOIN)
+    public ChiTietPhieuNhap(int id, int ma_phieu_nhap, int ma_sp, String ten_sp,
+            int so_luong, BigDecimal don_gia, BigDecimal thanh_tien) {
         this.id = id;
         this.ma_phieu_nhap = ma_phieu_nhap;
         this.ma_sp = ma_sp;
+        this.ten_sp = ten_sp;
         this.so_luong = so_luong;
         this.don_gia = don_gia;
         this.thanh_tien = thanh_tien;
@@ -72,6 +74,14 @@ public class ChiTietPhieuNhap {
 
     public void setDon_gia(BigDecimal don_gia) {
         this.don_gia = don_gia;
+    }
+
+    public String getTen_sp() {
+        return ten_sp;
+    }
+
+    public void setTen_sp(String ten_sp) {
+        this.ten_sp = ten_sp;
     }
 
     public BigDecimal getThanh_tien() {

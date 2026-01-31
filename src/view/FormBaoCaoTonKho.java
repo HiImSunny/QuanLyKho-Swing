@@ -116,7 +116,7 @@ public class FormBaoCaoTonKho extends JFrame {
         // Print/PDF Button
         JButton btnPrint = new JButton("Xuất PDF");
         btnPrint.setBackground(new Color(0, 123, 255));
-        btnPrint.setForeground(Color.WHITE);
+        btnPrint.setForeground(Color.BLACK);
         btnPrint.addActionListener(e -> exportToPDF());
         filterPanel.add(btnPrint);
 
