@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 31, 2026 at 03:34 AM
+-- Generation Time: Feb 01, 2026 at 05:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -160,10 +160,12 @@ CREATE TABLE `phieu_nhap` (
   `so_phieu` varchar(50) NOT NULL,
   `ngay_nhap` date NOT NULL,
   `ma_ncc` int(11) DEFAULT NULL,
+  `ma_kho` int(11) DEFAULT NULL,
   `nguoi_lap` int(11) DEFAULT NULL,
   `tong_tien` decimal(15,2) DEFAULT 0.00,
   `ghi_chu` text DEFAULT NULL,
-  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
+  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp(),
+  `trang_thai` varchar(20) DEFAULT 'hoan_thanh'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -177,10 +179,12 @@ CREATE TABLE `phieu_xuat` (
   `so_phieu` varchar(50) NOT NULL,
   `ngay_xuat` date NOT NULL,
   `ma_kh` int(11) DEFAULT NULL,
+  `ma_kho` int(11) DEFAULT NULL,
   `nguoi_lap` int(11) DEFAULT NULL,
   `tong_tien` decimal(15,2) DEFAULT 0.00,
   `ghi_chu` text DEFAULT NULL,
-  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp()
+  `ngay_tao` timestamp NOT NULL DEFAULT current_timestamp(),
+  `trang_thai` varchar(20) DEFAULT 'hoan_thanh'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -318,7 +322,8 @@ ALTER TABLE `phieu_nhap`
   ADD PRIMARY KEY (`ma_phieu_nhap`),
   ADD UNIQUE KEY `so_phieu` (`so_phieu`),
   ADD KEY `nguoi_lap` (`nguoi_lap`),
-  ADD KEY `ma_ncc` (`ma_ncc`);
+  ADD KEY `ma_ncc` (`ma_ncc`),
+  ADD KEY `idx_ma_kho` (`ma_kho`);
 
 --
 -- Indexes for table `phieu_xuat`
@@ -327,7 +332,8 @@ ALTER TABLE `phieu_xuat`
   ADD PRIMARY KEY (`ma_phieu_xuat`),
   ADD UNIQUE KEY `so_phieu` (`so_phieu`),
   ADD KEY `nguoi_lap` (`nguoi_lap`),
-  ADD KEY `ma_kh` (`ma_kh`);
+  ADD KEY `ma_kh` (`ma_kh`),
+  ADD KEY `idx_ma_kho` (`ma_kho`);
 
 --
 -- Indexes for table `san_pham`
@@ -482,14 +488,16 @@ ALTER TABLE `kiem_ke`
 --
 ALTER TABLE `phieu_nhap`
   ADD CONSTRAINT `phieu_nhap_ibfk_1` FOREIGN KEY (`nguoi_lap`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `phieu_nhap_ibfk_2` FOREIGN KEY (`ma_ncc`) REFERENCES `nha_cung_cap` (`ma_ncc`) ON DELETE SET NULL;
+  ADD CONSTRAINT `phieu_nhap_ibfk_2` FOREIGN KEY (`ma_ncc`) REFERENCES `nha_cung_cap` (`ma_ncc`) ON DELETE SET NULL,
+  ADD CONSTRAINT `phieu_nhap_ibfk_3` FOREIGN KEY (`ma_kho`) REFERENCES `kho` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `phieu_xuat`
 --
 ALTER TABLE `phieu_xuat`
   ADD CONSTRAINT `phieu_xuat_ibfk_1` FOREIGN KEY (`nguoi_lap`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `phieu_xuat_ibfk_2` FOREIGN KEY (`ma_kh`) REFERENCES `khach_hang` (`ma_kh`) ON DELETE SET NULL;
+  ADD CONSTRAINT `phieu_xuat_ibfk_2` FOREIGN KEY (`ma_kh`) REFERENCES `khach_hang` (`ma_kh`) ON DELETE SET NULL,
+  ADD CONSTRAINT `phieu_xuat_ibfk_3` FOREIGN KEY (`ma_kho`) REFERENCES `kho` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `san_pham`

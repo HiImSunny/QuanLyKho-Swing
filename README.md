@@ -110,7 +110,7 @@ Hệ thống quản lý kho hàng toàn diện được xây dựng bằng Java 
 ## 💻 Yêu Cầu Hệ Thống
 
 ### Phần Mềm
-- ✅ **Java JDK 17** trở lên
+- ✅ **Java JDK 11** trở lên
 - ✅ **MySQL 8.0+** hoặc **MariaDB 10.4+**
 - ✅ **XAMPP** (khuyến nghị) hoặc MySQL Server độc lập
 - ✅ **IDE**: Eclipse, IntelliJ IDEA, hoặc NetBeans
@@ -240,24 +240,15 @@ QuanLyKho-Swing/
 │   │   └── DialogTonKhoTheoKho.java
 │   │
 │   ├── util/                     # Utilities
+│   │   ├── BCryptHelper.java     # Password Hashing
 │   │   ├── DatabaseBackup.java   # Backup/Restore
-│   │   ├── DatabaseFixer.java
-│   │   ├── PDFExporter.java      # Export PDF
-│   │   └── RunMigration.java
-│   │
-│   ├── utils/                    # Helper Classes
-│   │   └── BCryptHelper.java     # Password Hashing
+│   │   └── PDFExporter.java      # Export PDF
 │   │
 │   ├── setup/                    # Setup Scripts
 │   │   └── SetupInitialUsers.java
 │   │
 │   ├── test/                     # Test Scripts
-│   │   ├── AddMaKhoToPhieuNhap.java
-│   │   ├── AddMaKhoToPhieuXuat.java
-│   │   ├── DistributeInventory.java
-│   │   ├── RunSchemaFix.java
-│   │   ├── TestTonKho.java
-│   │   └── VerifyMigration.java
+│   │   └── TestTonKho.java       # Inventory Testing
 │   │
 │   └── qlkho_db.sql              # Database Schema
 │
@@ -375,7 +366,7 @@ khach_hang (Khách hàng)
 | `tong_tien` | DECIMAL(15,2) | Tổng tiền |
 | `ghi_chu` | TEXT | Ghi chú |
 | `ngay_tao` | TIMESTAMP | Ngày tạo |
-| `trang_thai` | VARCHAR(20) | Trạng thái |
+| `trang_thai` | VARCHAR(20) | Trạng thái (default: 'hoan_thanh') |
 
 #### 6. `chi_tiet_phieu_nhap` - Chi Tiết Phiếu Nhập
 | Cột | Kiểu | Mô tả |
@@ -401,7 +392,7 @@ khach_hang (Khách hàng)
 | `tong_tien` | DECIMAL(15,2) | Tổng tiền |
 | `ghi_chu` | TEXT | Ghi chú |
 | `ngay_tao` | TIMESTAMP | Ngày tạo |
-| `trang_thai` | VARCHAR(20) | Trạng thái |
+| `trang_thai` | VARCHAR(20) | Trạng thái (default: 'hoan_thanh') |
 
 #### 8. `kiem_ke` - Kiểm Kê
 | Cột | Kiểu | Mô tả |
