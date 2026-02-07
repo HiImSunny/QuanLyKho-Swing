@@ -335,9 +335,37 @@ public class FormSaoLuu extends JFrame {
         setCursor(Cursor.getDefaultCursor());
 
         if (success) {
-            JOptionPane.showMessageDialog(this,
-                    "Phục hồi thành công!\nVui lòng khởi động lại ứng dụng.",
-                    "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            // Save restore record to database
+            try {
+                SaoLuu saoLuu = new SaoLuu(
+                        file.getName(),
+                        inputPath,
+                        file.length(),
+                        currentUser.getId(),
+                        "restore");
+                saoLuu.setGhiChu("Phục hồi database");
+                saoLuuDAO.insert(saoLuu);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            // Refresh history to show the restore record
+            loadBackupHistory();
+
+            // Show success message with restart option
+            int choice = JOptionPane.showOptionDialog(this,
+                    "Phục hồi thành công!\n\nỨng dụng cần được khởi động lại để áp dụng thay đổi.\nBạn có muốn khởi động lại ngay bây giờ?",
+                    "Thành công",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    new Object[] { "Khởi động lại", "Để sau" },
+                    "Khởi động lại");
+
+            if (choice == JOptionPane.YES_OPTION) {
+                // Restart application
+                restartApplication();
+            }
         } else {
             JOptionPane.showMessageDialog(this,
                     "Phục hồi thất bại!\nVui lòng kiểm tra:\n" +
@@ -351,8 +379,8 @@ public class FormSaoLuu extends JFrame {
     private void loadBackupHistory() {
         modelHistory.setRowCount(0);
 
-        // Get all backup records from database
-        List<SaoLuu> backups = saoLuuDAO.getBackupsOnly();
+        // Get all backup and restore records from database
+        List<SaoLuu> backups = saoLuuDAO.getAll();
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
@@ -436,6 +464,30 @@ public class FormSaoLuu extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this,
                     "Xóa bản sao lưu thất bại!\n" + errorMsg.toString(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Restart the application by closing all windows and opening login form
+     */
+    private void restartApplication() {
+        try {
+            // Close all windows
+            for (Window window : Window.getWindows()) {
+                window.dispose();
+            }
+
+            // Open login form
+            SwingUtilities.invokeLater(() -> {
+                FormDangNhap loginForm = new FormDangNhap();
+                loginForm.setVisible(true);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Không thể khởi động lại ứng dụng tự động.\nVui lòng đóng và mở lại ứng dụng thủ công.",
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }

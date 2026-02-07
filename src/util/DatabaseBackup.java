@@ -52,6 +52,8 @@ public class DatabaseBackup {
             if (!DB_PASS.isEmpty()) {
                 commands.add("-p" + DB_PASS);
             }
+            commands.add("--default-character-set=utf8mb4");
+            commands.add("--set-charset");
             commands.add("--databases");
             commands.add(DB_NAME);
             commands.add("--result-file=" + outputPath);
@@ -62,7 +64,7 @@ public class DatabaseBackup {
             Process process = pb.start();
 
             // Read output
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
@@ -99,29 +101,26 @@ public class DatabaseBackup {
                 return false;
             }
 
-            // Use PowerShell to handle paths with spaces
+            // Use ProcessBuilder with redirectInput for proper UTF-8 handling
+            // This avoids shell escaping issues with paths containing spaces
             List<String> commands = new ArrayList<>();
-            commands.add("powershell.exe");
-            commands.add("-Command");
-
-            // Build PowerShell command: Get-Content "path" | mysql -u root
-            StringBuilder psCommand = new StringBuilder();
-            psCommand.append("Get-Content \"").append(inputPath).append("\" | ");
-            psCommand.append("& \"").append(MYSQL_PATH).append("mysql.exe\" ");
-            psCommand.append("-u ").append(DB_USER);
+            commands.add(MYSQL_PATH + "mysql.exe");
+            commands.add("-u" + DB_USER);
             if (!DB_PASS.isEmpty()) {
-                psCommand.append(" -p").append(DB_PASS);
+                commands.add("-p" + DB_PASS);
             }
-
-            commands.add(psCommand.toString());
+            commands.add("--default-character-set=utf8mb4");
+            commands.add(DB_NAME);
 
             ProcessBuilder pb = new ProcessBuilder(commands);
             pb.redirectErrorStream(true);
+            // Redirect input from file - this properly handles UTF-8 and paths with spaces
+            pb.redirectInput(file);
 
             Process process = pb.start();
 
             // Read output
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
             String line;
             StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
