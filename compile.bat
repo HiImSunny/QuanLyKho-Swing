@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > nul
 if not exist bin mkdir bin
 
 echo Compiling sources...
