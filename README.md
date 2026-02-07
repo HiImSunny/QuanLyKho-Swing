@@ -157,7 +157,7 @@ SOURCE /path/to/QuanLyKho-Swing/src/qlkho_db.sql;
 Mở file `src/database/DatabaseConnection.java` và kiểm tra cấu hình:
 
 ```java
-private static final String DB_URL = "jdbc:mysql://localhost:3306/qlkho_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh";
+private static final String DB_URL = "jdbc:mysql://localhost:3306/qlkho_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8";
 private static final String USER = "root";
 private static final String PASS = ""; // Thay đổi nếu có password
 ```
@@ -516,7 +516,7 @@ Sau khi đăng nhập, bạn sẽ thấy:
 
 | Username | Password | Role | Họ Tên |
 |----------|----------|------|--------|
-| `admin` | `admin` | Admin | Admin |
+| `admin` | `123456` | Admin | Admin |
 | `nvkho01` | `123456` | Nhân viên | Lương Duy Khang |
 | `nvkho02` | `123456` | Nhân viên | Phan Minh Khôi |
 
@@ -608,30 +608,51 @@ try (Connection conn = DatabaseConnection.getConnection();
 ### Cơ Chế Backup
 
 ```java
-// Sử dụng mysqldump
-String command = "mysqldump -u root qlkho_db --result-file=backup.sql";
+// Sử dụng mysqldump với UTF-8 encoding
+List<String> commands = new ArrayList<>();
+commands.add(MYSQL_PATH + "mysqldump.exe");
+commands.add("-u" + DB_USER);
+commands.add("--default-character-set=utf8mb4");
+commands.add("--set-charset");
+commands.add("--databases");
+commands.add(DB_NAME);
+commands.add("--result-file=" + outputPath);
 ```
 
 **Lưu ý**:
 - Đường dẫn mysqldump: `C:\xampp\mysql\bin\mysqldump.exe`
-- Tránh đường dẫn có khoảng trắng
+- Hỗ trợ đường dẫn có khoảng trắng
 - File backup có định dạng: `qlkho_backup_YYYYMMDD_HHMMSS.sql`
+- File backup chứa đầy đủ thông tin charset UTF-8
 
 ### Cơ Chế Restore
 
 ```java
-// Sử dụng PowerShell để xử lý path có khoảng trắng
-Get-Content "backup.sql" | mysql -u root qlkho_db
+// Sử dụng ProcessBuilder.redirectInput() để xử lý UTF-8 và path có khoảng trắng
+List<String> commands = new ArrayList<>();
+commands.add(MYSQL_PATH + "mysql.exe");
+commands.add("-u" + DB_USER);
+commands.add("--default-character-set=utf8mb4");
+commands.add(DB_NAME);
+
+ProcessBuilder pb = new ProcessBuilder(commands);
+pb.redirectInput(file);  // Redirect từ file SQL
 ```
+
+**Ưu điểm**:
+- ✅ Hỗ trợ đường dẫn có khoảng trắng
+- ✅ Giữ nguyên encoding UTF-8 (tiếng Việt)
+- ✅ Không cần PowerShell hoặc CMD escape
 
 ### Lịch Sử Backup
 
-Mọi backup được lưu vào bảng `sao_luu`:
+Mọi backup/restore được lưu vào bảng `sao_luu`:
 - Tên file
 - Đường dẫn
 - Kích thước
 - Người thực hiện
 - Thời gian
+- Loại (backup/restore)
 
 ---
 

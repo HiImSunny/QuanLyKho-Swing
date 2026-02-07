@@ -1,3 +1,8 @@
+/bin/
+/out/
+*.class
+.settings/
+.vscode/
 /DATABASE_ANALYSIS.md
 /JAVA_VERSION_FIX.md
 /MIGRATION_GUIDE.md
@@ -5,3 +10,6 @@
 /SCHEMA_SIMPLIFY_LEVEL1_SUMMARY.md
 /TON_KHO_README.md
 /UI_ANALYSIS.md
+HUONG_DAN_DEBUG.md
+/tests/
+/temp/
