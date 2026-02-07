@@ -2,5 +2,18 @@
     "java.project.referencedLibraries": [
         "lib/**/*.jar"
     ],
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.jdt.ls.java.home": "C:\\Users\\DUY KHANG\\.jdks\\oracle-21.0.3",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "C:\\Users\\DUY KHANG\\.jdks\\oracle-21.0.3",
+            "default": true
+        },
+        {
+            "name": "JavaSE-21",
+            "path": "C:\\Users\\DUY KHANG\\.jdks\\oracle-21.0.3"
+        }
+    ],
+    "java.compile.nullAnalysis.mode": "automatic"
 }
