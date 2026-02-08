@@ -168,6 +168,27 @@ public class FormNhapKho extends JFrame {
         pnlAdd.add(new JLabel("Sản phẩm:"));
         cboSanPham = new JComboBox<>();
         cboSanPham.setPreferredSize(new Dimension(250, 25));
+        // Tự động điền giá nhập mặc định khi chọn sản phẩm
+        cboSanPham.addActionListener(e -> {
+            if (cboSanPham.getSelectedIndex() > 0) {
+                String selected = cboSanPham.getSelectedItem().toString();
+                int maSP = Integer.parseInt(selected.split(" - ")[0]);
+                // Tìm sản phẩm trong danh sách
+                for (SanPham sp : listSanPham) {
+                    if (sp.getMaSp() == maSP) {
+                        // Điền giá nhập mặc định (có thể sửa)
+                        if (sp.getGiaNhap() != null && sp.getGiaNhap().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                            txtDonGia.setText(dfCurrency.format(sp.getGiaNhap()));
+                        } else {
+                            txtDonGia.setText("");
+                        }
+                        break;
+                    }
+                }
+            } else {
+                txtDonGia.setText("");
+            }
+        });
         pnlAdd.add(cboSanPham);
 
         pnlAdd.add(new JLabel("Số lượng:"));

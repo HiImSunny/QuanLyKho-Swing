@@ -12,17 +12,22 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class FormLichSuKiemKe extends JFrame {
     private User currentUser;
     private JComboBox<String> cboKho;
     private JTextField txtSearch;
+    private JSpinner spinnerTuNgay;
+    private JSpinner spinnerDenNgay;
+    private JCheckBox chkLocNgay;
     private JTable tablePhieu;
     private DefaultTableModel modelPhieu;
     private JTable tableChiTiet;
     private DefaultTableModel modelChiTiet;
-    private JButton btnFilter, btnRefresh, btnExportCSV, btnExportPDF, btnCancel;
+    private JButton btnRefresh, btnExportCSV, btnExportPDF, btnCancel;
 
     private KhoDAO khoDAO;
     private KiemKeDAO kiemKeDAO;
@@ -87,18 +92,55 @@ public class FormLichSuKiemKe extends JFrame {
         filterPanel.add(cboKho);
 
         filterPanel.add(new JLabel("Tìm kiếm:"));
-        txtSearch = new JTextField(20);
-        txtSearch.addActionListener(e -> filterPhieu());
+        txtSearch = new JTextField(15);
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                filterPhieu();
+            }
+        });
         filterPanel.add(txtSearch);
 
-        btnFilter = new JButton("Lọc");
-        btnFilter.addActionListener(e -> filterPhieu());
-        filterPanel.add(btnFilter);
+        // Date range filter
+        chkLocNgay = new JCheckBox("Lọc ngày:");
+        chkLocNgay.addActionListener(e -> {
+            boolean enabled = chkLocNgay.isSelected();
+            spinnerTuNgay.setEnabled(enabled);
+            spinnerDenNgay.setEnabled(enabled);
+            filterPhieu();
+        });
+        filterPanel.add(chkLocNgay);
+
+        filterPanel.add(new JLabel("Từ:"));
+        Calendar calFrom = Calendar.getInstance();
+        calFrom.add(Calendar.MONTH, -1); // Default: 1 month ago
+        spinnerTuNgay = new JSpinner(new SpinnerDateModel(calFrom.getTime(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor tuNgayEditor = new JSpinner.DateEditor(spinnerTuNgay, "dd/MM/yyyy");
+        spinnerTuNgay.setEditor(tuNgayEditor);
+        spinnerTuNgay.setPreferredSize(new Dimension(100, 25));
+        spinnerTuNgay.setEnabled(false);
+        spinnerTuNgay.addChangeListener(e -> filterPhieu());
+        filterPanel.add(spinnerTuNgay);
+
+        filterPanel.add(new JLabel("Đến:"));
+        spinnerDenNgay = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor denNgayEditor = new JSpinner.DateEditor(spinnerDenNgay, "dd/MM/yyyy");
+        spinnerDenNgay.setEditor(denNgayEditor);
+        spinnerDenNgay.setPreferredSize(new Dimension(100, 25));
+        spinnerDenNgay.setEnabled(false);
+        spinnerDenNgay.addChangeListener(e -> filterPhieu());
+        filterPanel.add(spinnerDenNgay);
 
         btnRefresh = new JButton("Làm mới");
         btnRefresh.addActionListener(e -> {
             cboKho.setSelectedIndex(0);
             txtSearch.setText("");
+            chkLocNgay.setSelected(false);
+            spinnerTuNgay.setEnabled(false);
+            spinnerDenNgay.setEnabled(false);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, -1);
+            spinnerTuNgay.setValue(cal.getTime());
+            spinnerDenNgay.setValue(new Date());
             loadPhieuKiemKe();
         });
         filterPanel.add(btnRefresh);
@@ -227,6 +269,24 @@ public class FormLichSuKiemKe extends JFrame {
     private void filterPhieu() {
         String selectedKho = (String) cboKho.getSelectedItem();
         String keyword = txtSearch.getText().toLowerCase().trim();
+        boolean filterByDate = chkLocNgay.isSelected();
+        Date tuNgay = (Date) spinnerTuNgay.getValue();
+        Date denNgay = (Date) spinnerDenNgay.getValue();
+
+        // Normalize dates to start and end of day
+        Calendar calTu = Calendar.getInstance();
+        calTu.setTime(tuNgay);
+        calTu.set(Calendar.HOUR_OF_DAY, 0);
+        calTu.set(Calendar.MINUTE, 0);
+        calTu.set(Calendar.SECOND, 0);
+        calTu.set(Calendar.MILLISECOND, 0);
+
+        Calendar calDen = Calendar.getInstance();
+        calDen.setTime(denNgay);
+        calDen.set(Calendar.HOUR_OF_DAY, 23);
+        calDen.set(Calendar.MINUTE, 59);
+        calDen.set(Calendar.SECOND, 59);
+        calDen.set(Calendar.MILLISECOND, 999);
 
         List<KiemKe> filtered = new ArrayList<>();
         for (KiemKe kk : listKiemKe) {
@@ -236,8 +296,12 @@ public class FormLichSuKiemKe extends JFrame {
                     kk.getSo_phieu().toLowerCase().contains(keyword) ||
                     (kk.getTen_kho() != null && kk.getTen_kho().toLowerCase().contains(keyword)) ||
                     (kk.getTen_nguoi_kiem_ke() != null && kk.getTen_nguoi_kiem_ke().toLowerCase().contains(keyword));
+            boolean matchDate = !filterByDate ||
+                    (kk.getNgay_kiem_ke() != null &&
+                            !kk.getNgay_kiem_ke().before(calTu.getTime()) &&
+                            !kk.getNgay_kiem_ke().after(calDen.getTime()));
 
-            if (matchKho && matchKeyword) {
+            if (matchKho && matchKeyword && matchDate) {
                 filtered.add(kk);
             }
         }

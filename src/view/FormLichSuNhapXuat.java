@@ -11,6 +11,8 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,6 +22,9 @@ public class FormLichSuNhapXuat extends JFrame {
     // Phiếu Nhập components
     private JComboBox<String> cboKhoNhap;
     private JTextField txtSearchNhap;
+    private JSpinner spinnerTuNgayNhap;
+    private JSpinner spinnerDenNgayNhap;
+    private JCheckBox chkLocNgayNhap;
     private JTable tablePhieuNhap;
     private DefaultTableModel modelPhieuNhap;
     private JTable tableChiTietNhap;
@@ -30,6 +35,9 @@ public class FormLichSuNhapXuat extends JFrame {
     // Phiếu Xuất components
     private JComboBox<String> cboKhoXuat;
     private JTextField txtSearchXuat;
+    private JSpinner spinnerTuNgayXuat;
+    private JSpinner spinnerDenNgayXuat;
+    private JCheckBox chkLocNgayXuat;
     private JTable tablePhieuXuat;
     private DefaultTableModel modelPhieuXuat;
     private JTable tableChiTietXuat;
@@ -93,7 +101,7 @@ public class FormLichSuNhapXuat extends JFrame {
         filterPanel.add(cboKhoNhap);
 
         filterPanel.add(new JLabel("Tìm kiếm:"));
-        txtSearchNhap = new JTextField(20);
+        txtSearchNhap = new JTextField(15);
         txtSearchNhap.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filterPhieuNhap();
@@ -101,10 +109,47 @@ public class FormLichSuNhapXuat extends JFrame {
         });
         filterPanel.add(txtSearchNhap);
 
+        // Date range filter
+        chkLocNgayNhap = new JCheckBox("Lọc ngày:");
+        chkLocNgayNhap.addActionListener(e -> {
+            boolean enabled = chkLocNgayNhap.isSelected();
+            spinnerTuNgayNhap.setEnabled(enabled);
+            spinnerDenNgayNhap.setEnabled(enabled);
+            filterPhieuNhap();
+        });
+        filterPanel.add(chkLocNgayNhap);
+
+        filterPanel.add(new JLabel("Từ:"));
+        Calendar calFrom = Calendar.getInstance();
+        calFrom.add(Calendar.MONTH, -1); // Default: 1 month ago
+        spinnerTuNgayNhap = new JSpinner(new SpinnerDateModel(calFrom.getTime(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor tuNgayEditor = new JSpinner.DateEditor(spinnerTuNgayNhap, "dd/MM/yyyy");
+        spinnerTuNgayNhap.setEditor(tuNgayEditor);
+        spinnerTuNgayNhap.setPreferredSize(new Dimension(100, 25));
+        spinnerTuNgayNhap.setEnabled(false);
+        spinnerTuNgayNhap.addChangeListener(e -> filterPhieuNhap());
+        filterPanel.add(spinnerTuNgayNhap);
+
+        filterPanel.add(new JLabel("Đến:"));
+        spinnerDenNgayNhap = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor denNgayEditor = new JSpinner.DateEditor(spinnerDenNgayNhap, "dd/MM/yyyy");
+        spinnerDenNgayNhap.setEditor(denNgayEditor);
+        spinnerDenNgayNhap.setPreferredSize(new Dimension(100, 25));
+        spinnerDenNgayNhap.setEnabled(false);
+        spinnerDenNgayNhap.addChangeListener(e -> filterPhieuNhap());
+        filterPanel.add(spinnerDenNgayNhap);
+
         JButton btnRefreshNhap = new JButton("Làm mới");
         btnRefreshNhap.addActionListener(e -> {
             cboKhoNhap.setSelectedIndex(0);
             txtSearchNhap.setText("");
+            chkLocNgayNhap.setSelected(false);
+            spinnerTuNgayNhap.setEnabled(false);
+            spinnerDenNgayNhap.setEnabled(false);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, -1);
+            spinnerTuNgayNhap.setValue(cal.getTime());
+            spinnerDenNgayNhap.setValue(new Date());
             loadPhieuNhap();
         });
         filterPanel.add(btnRefreshNhap);
@@ -215,7 +260,7 @@ public class FormLichSuNhapXuat extends JFrame {
         filterPanel.add(cboKhoXuat);
 
         filterPanel.add(new JLabel("Tìm kiếm:"));
-        txtSearchXuat = new JTextField(20);
+        txtSearchXuat = new JTextField(15);
         txtSearchXuat.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filterPhieuXuat();
@@ -223,10 +268,48 @@ public class FormLichSuNhapXuat extends JFrame {
         });
         filterPanel.add(txtSearchXuat);
 
+        // Date range filter
+        chkLocNgayXuat = new JCheckBox("Lọc ngày:");
+        chkLocNgayXuat.addActionListener(e -> {
+            boolean enabled = chkLocNgayXuat.isSelected();
+            spinnerTuNgayXuat.setEnabled(enabled);
+            spinnerDenNgayXuat.setEnabled(enabled);
+            filterPhieuXuat();
+        });
+        filterPanel.add(chkLocNgayXuat);
+
+        filterPanel.add(new JLabel("Từ:"));
+        Calendar calFromXuat = Calendar.getInstance();
+        calFromXuat.add(Calendar.MONTH, -1); // Default: 1 month ago
+        spinnerTuNgayXuat = new JSpinner(
+                new SpinnerDateModel(calFromXuat.getTime(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor tuNgayEditorXuat = new JSpinner.DateEditor(spinnerTuNgayXuat, "dd/MM/yyyy");
+        spinnerTuNgayXuat.setEditor(tuNgayEditorXuat);
+        spinnerTuNgayXuat.setPreferredSize(new Dimension(100, 25));
+        spinnerTuNgayXuat.setEnabled(false);
+        spinnerTuNgayXuat.addChangeListener(e -> filterPhieuXuat());
+        filterPanel.add(spinnerTuNgayXuat);
+
+        filterPanel.add(new JLabel("Đến:"));
+        spinnerDenNgayXuat = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.DAY_OF_MONTH));
+        JSpinner.DateEditor denNgayEditorXuat = new JSpinner.DateEditor(spinnerDenNgayXuat, "dd/MM/yyyy");
+        spinnerDenNgayXuat.setEditor(denNgayEditorXuat);
+        spinnerDenNgayXuat.setPreferredSize(new Dimension(100, 25));
+        spinnerDenNgayXuat.setEnabled(false);
+        spinnerDenNgayXuat.addChangeListener(e -> filterPhieuXuat());
+        filterPanel.add(spinnerDenNgayXuat);
+
         JButton btnRefreshXuat = new JButton("Làm mới");
         btnRefreshXuat.addActionListener(e -> {
             cboKhoXuat.setSelectedIndex(0);
             txtSearchXuat.setText("");
+            chkLocNgayXuat.setSelected(false);
+            spinnerTuNgayXuat.setEnabled(false);
+            spinnerDenNgayXuat.setEnabled(false);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, -1);
+            spinnerTuNgayXuat.setValue(cal.getTime());
+            spinnerDenNgayXuat.setValue(new Date());
             loadPhieuXuat();
         });
         filterPanel.add(btnRefreshXuat);
@@ -389,6 +472,24 @@ public class FormLichSuNhapXuat extends JFrame {
     private void filterPhieuNhap() {
         String selectedKho = (String) cboKhoNhap.getSelectedItem();
         String keyword = txtSearchNhap.getText().toLowerCase().trim();
+        boolean filterByDate = chkLocNgayNhap.isSelected();
+        Date tuNgay = (Date) spinnerTuNgayNhap.getValue();
+        Date denNgay = (Date) spinnerDenNgayNhap.getValue();
+
+        // Normalize dates to start and end of day
+        Calendar calTu = Calendar.getInstance();
+        calTu.setTime(tuNgay);
+        calTu.set(Calendar.HOUR_OF_DAY, 0);
+        calTu.set(Calendar.MINUTE, 0);
+        calTu.set(Calendar.SECOND, 0);
+        calTu.set(Calendar.MILLISECOND, 0);
+
+        Calendar calDen = Calendar.getInstance();
+        calDen.setTime(denNgay);
+        calDen.set(Calendar.HOUR_OF_DAY, 23);
+        calDen.set(Calendar.MINUTE, 59);
+        calDen.set(Calendar.SECOND, 59);
+        calDen.set(Calendar.MILLISECOND, 999);
 
         List<PhieuNhap> filtered = new ArrayList<>();
         for (PhieuNhap pn : listPhieuNhap) {
@@ -397,8 +498,12 @@ public class FormLichSuNhapXuat extends JFrame {
             boolean matchKeyword = keyword.isEmpty() ||
                     pn.getSo_phieu().toLowerCase().contains(keyword) ||
                     (pn.getNha_cung_cap() != null && pn.getNha_cung_cap().toLowerCase().contains(keyword));
+            boolean matchDate = !filterByDate ||
+                    (pn.getNgay_nhap() != null &&
+                            !pn.getNgay_nhap().before(calTu.getTime()) &&
+                            !pn.getNgay_nhap().after(calDen.getTime()));
 
-            if (matchKho && matchKeyword) {
+            if (matchKho && matchKeyword && matchDate) {
                 filtered.add(pn);
             }
         }
@@ -408,6 +513,24 @@ public class FormLichSuNhapXuat extends JFrame {
     private void filterPhieuXuat() {
         String selectedKho = (String) cboKhoXuat.getSelectedItem();
         String keyword = txtSearchXuat.getText().toLowerCase().trim();
+        boolean filterByDate = chkLocNgayXuat.isSelected();
+        Date tuNgay = (Date) spinnerTuNgayXuat.getValue();
+        Date denNgay = (Date) spinnerDenNgayXuat.getValue();
+
+        // Normalize dates to start and end of day
+        Calendar calTu = Calendar.getInstance();
+        calTu.setTime(tuNgay);
+        calTu.set(Calendar.HOUR_OF_DAY, 0);
+        calTu.set(Calendar.MINUTE, 0);
+        calTu.set(Calendar.SECOND, 0);
+        calTu.set(Calendar.MILLISECOND, 0);
+
+        Calendar calDen = Calendar.getInstance();
+        calDen.setTime(denNgay);
+        calDen.set(Calendar.HOUR_OF_DAY, 23);
+        calDen.set(Calendar.MINUTE, 59);
+        calDen.set(Calendar.SECOND, 59);
+        calDen.set(Calendar.MILLISECOND, 999);
 
         List<PhieuXuat> filtered = new ArrayList<>();
         for (PhieuXuat px : listPhieuXuat) {
@@ -416,8 +539,12 @@ public class FormLichSuNhapXuat extends JFrame {
             boolean matchKeyword = keyword.isEmpty() ||
                     px.getSo_phieu().toLowerCase().contains(keyword) ||
                     (px.getKhach_hang() != null && px.getKhach_hang().toLowerCase().contains(keyword));
+            boolean matchDate = !filterByDate ||
+                    (px.getNgay_xuat() != null &&
+                            !px.getNgay_xuat().before(calTu.getTime()) &&
+                            !px.getNgay_xuat().after(calDen.getTime()));
 
-            if (matchKho && matchKeyword) {
+            if (matchKho && matchKeyword && matchDate) {
                 filtered.add(px);
             }
         }

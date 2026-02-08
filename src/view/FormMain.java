@@ -193,7 +193,7 @@ public class FormMain extends JFrame {
         JMenuItem itemSaoLuu = new JMenuItem("Sao lưu dữ liệu");
         itemSaoLuu.setFont(new Font("Arial", Font.PLAIN, 13));
         itemSaoLuu.addActionListener(e -> {
-            new FormSaoLuu(currentUser).setVisible(true);
+            new FormSaoLuu().setVisible(true);
         });
 
         JMenuItem itemDangXuat = new JMenuItem("Đăng xuất");

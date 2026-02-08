@@ -1,8 +1,5 @@
 package view;
 
-import dao.SaoLuuDAO;
-import model.SaoLuu;
-import model.User;
 import util.DatabaseBackup;
 
 import javax.swing.*;
@@ -11,22 +8,17 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 public class FormSaoLuu extends JFrame {
-    private User currentUser;
     private JTextField txtBackupPath;
     private JTextField txtRestorePath;
     private JTable tableHistory;
     private DefaultTableModel modelHistory;
     private JButton btnBrowseBackup, btnBackup, btnBrowseRestore, btnRestore, btnRefresh, btnDelete;
-    private SaoLuuDAO saoLuuDAO;
 
     private String defaultBackupDir = System.getProperty("user.home") + "\\Desktop\\QuanLyKho_Backup";
 
-    public FormSaoLuu(User user) {
-        this.currentUser = user;
-        this.saoLuuDAO = new SaoLuuDAO();
+    public FormSaoLuu() {
 
         setTitle("Sao Lưu & Phục Hồi Database");
         setSize(900, 650);
@@ -156,7 +148,7 @@ public class FormSaoLuu extends JFrame {
 
         panel.add(topPanel, BorderLayout.NORTH);
 
-        String[] columns = { "Tên File", "Kích Thước", "Ngày Sao Lưu", "Người Thực Hiện", "Đường Dẫn" };
+        String[] columns = { "Tên File", "Kích Thước", "Ngày Sao Lưu", "Đường Dẫn" };
         modelHistory = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -166,11 +158,10 @@ public class FormSaoLuu extends JFrame {
 
         tableHistory = new JTable(modelHistory);
         tableHistory.setRowHeight(25);
-        tableHistory.getColumnModel().getColumn(0).setPreferredWidth(180);
+        tableHistory.getColumnModel().getColumn(0).setPreferredWidth(200);
         tableHistory.getColumnModel().getColumn(1).setPreferredWidth(80);
         tableHistory.getColumnModel().getColumn(2).setPreferredWidth(130);
-        tableHistory.getColumnModel().getColumn(3).setPreferredWidth(120);
-        tableHistory.getColumnModel().getColumn(4).setPreferredWidth(250);
+        tableHistory.getColumnModel().getColumn(3).setPreferredWidth(300);
 
         // Double click to load file to restore
         tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -178,7 +169,7 @@ public class FormSaoLuu extends JFrame {
                 if (evt.getClickCount() == 2) {
                     int row = tableHistory.getSelectedRow();
                     if (row >= 0) {
-                        String filePath = modelHistory.getValueAt(row, 4).toString();
+                        String filePath = modelHistory.getValueAt(row, 3).toString();
                         txtRestorePath.setText(filePath);
                     }
                 }
@@ -251,19 +242,6 @@ public class FormSaoLuu extends JFrame {
         setCursor(Cursor.getDefaultCursor());
 
         if (success) {
-            // Save to database
-            try {
-                File file = new File(outputPath);
-                SaoLuu saoLuu = new SaoLuu(
-                        file.getName(),
-                        outputPath,
-                        file.length(),
-                        currentUser.getId(),
-                        "backup");
-                saoLuuDAO.insert(saoLuu);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
 
             JOptionPane.showMessageDialog(this,
                     "Sao lưu thành công!\nFile: " + outputPath,
@@ -317,11 +295,59 @@ public class FormSaoLuu extends JFrame {
             return;
         }
 
-        // Strong warning
+        // Calculate time elapsed since backup file was created
+        long fileTime = file.lastModified();
+        long currentTime = System.currentTimeMillis();
+        long diffMs = currentTime - fileTime;
+
+        long diffSeconds = diffMs / 1000;
+        long diffMinutes = diffSeconds / 60;
+        long diffHours = diffMinutes / 60;
+        long diffDays = diffHours / 24;
+
+        String timeElapsed;
+        String warningLevel = "";
+        if (diffDays > 0) {
+            long remainingHours = diffHours % 24;
+            timeElapsed = diffDays + " ngày " + remainingHours + " giờ trước";
+            if (diffDays >= 7) {
+                warningLevel = "⚠️ CẢNH BÁO: File backup đã khá cũ!\n\n";
+            }
+        } else if (diffHours > 0) {
+            long remainingMinutes = diffMinutes % 60;
+            timeElapsed = diffHours + " giờ " + remainingMinutes + " phút trước";
+        } else if (diffMinutes > 0) {
+            timeElapsed = diffMinutes + " phút trước";
+        } else {
+            timeElapsed = "Vừa mới tạo";
+        }
+
+        // Format file size for display
+        long fileSize = file.length();
+        String fileSizeStr;
+        if (fileSize > 1024 * 1024) {
+            fileSizeStr = String.format("%.2f MB", fileSize / (1024.0 * 1024.0));
+        } else if (fileSize > 1024) {
+            fileSizeStr = String.format("%.2f KB", fileSize / 1024.0);
+        } else {
+            fileSizeStr = fileSize + " bytes";
+        }
+
+        // Strong warning with time info
         int confirm = JOptionPane.showConfirmDialog(this,
-                "CẢNH BÁO: Phục hồi sẽ GHI ĐÈ toàn bộ dữ liệu hiện tại!\n" +
+                warningLevel +
+                        "🔄 PHỤC HỒI DATABASE\n" +
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                        "📁 File: " + file.getName() + "\n" +
+                        "📊 Kích thước: " + fileSizeStr + "\n" +
+                        "⏰ Thời gian backup: " + timeElapsed + "\n\n" +
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                        "⚠️ CẢNH BÁO:\n" +
+                        "• Toàn bộ dữ liệu hiện tại sẽ bị GHI ĐÈ!\n" +
+                        "• Một bản backup tự động sẽ được tạo trước khi phục hồi\n" +
+                        "• Ứng dụng sẽ cần khởi động lại sau khi phục hồi\n\n" +
                         "Bạn có chắc chắn muốn tiếp tục?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                "Xác nhận Phục Hồi", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirm != JOptionPane.YES_OPTION) {
             return;
@@ -330,31 +356,48 @@ public class FormSaoLuu extends JFrame {
         // Show progress
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
+        // Step 1: Create auto backup before restore
+        String autoBackupPath = defaultBackupDir + "\\AUTO_BACKUP_BEFORE_RESTORE_" +
+                new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date()) + ".sql";
+
+        boolean backupSuccess = DatabaseBackup.backup(autoBackupPath);
+
+        if (backupSuccess) {
+            // Auto backup created successfully - will appear in file history
+        } else {
+            setCursor(Cursor.getDefaultCursor());
+            int proceed = JOptionPane.showConfirmDialog(this,
+                    "⚠️ Không thể tạo bản sao lưu tự động!\n\n" +
+                            "Bạn có muốn tiếp tục phục hồi mà KHÔNG có backup?\n" +
+                            "(Dữ liệu hiện tại sẽ mất vĩnh viễn nếu có lỗi)",
+                    "Cảnh báo nghiêm trọng",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.ERROR_MESSAGE);
+
+            if (proceed != JOptionPane.YES_OPTION) {
+                return;
+            }
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        }
+
+        // Step 2: Perform restore
         boolean success = DatabaseBackup.restore(inputPath);
 
         setCursor(Cursor.getDefaultCursor());
 
         if (success) {
-            // Save restore record to database
-            try {
-                SaoLuu saoLuu = new SaoLuu(
-                        file.getName(),
-                        inputPath,
-                        file.length(),
-                        currentUser.getId(),
-                        "restore");
-                saoLuu.setGhiChu("Phục hồi database");
-                saoLuuDAO.insert(saoLuu);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            // Refresh history to show the restore record
+            // Refresh history to show the auto backup
             loadBackupHistory();
 
             // Show success message with restart option
+            String successMsg = "✅ Phục hồi thành công!\n\n";
+            if (backupSuccess) {
+                successMsg += "📦 Đã tự động sao lưu dữ liệu cũ:\n" + autoBackupPath + "\n\n";
+            }
+            successMsg += "Ứng dụng cần được khởi động lại để áp dụng thay đổi.\nBạn có muốn khởi động lại ngay bây giờ?";
+
             int choice = JOptionPane.showOptionDialog(this,
-                    "Phục hồi thành công!\n\nỨng dụng cần được khởi động lại để áp dụng thay đổi.\nBạn có muốn khởi động lại ngay bây giờ?",
+                    successMsg,
                     "Thành công",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
@@ -367,46 +410,65 @@ public class FormSaoLuu extends JFrame {
                 restartApplication();
             }
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Phục hồi thất bại!\nVui lòng kiểm tra:\n" +
-                            "1. File backup có hợp lệ không\n" +
-                            "2. Đường dẫn mysql đúng chưa\n" +
-                            "3. MySQL server có đang chạy không",
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            String errorMsg = "❌ Phục hồi thất bại!\n\n" +
+                    "Vui lòng kiểm tra:\n" +
+                    "1. File backup có hợp lệ không\n" +
+                    "2. Đường dẫn mysql đúng chưa\n" +
+                    "3. MySQL server có đang chạy không\n\n";
+
+            if (backupSuccess) {
+                errorMsg += "💾 Dữ liệu của bạn vẫn an toàn!\n" +
+                        "Bản backup tự động: " + autoBackupPath;
+            }
+
+            JOptionPane.showMessageDialog(this, errorMsg, "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void loadBackupHistory() {
         modelHistory.setRowCount(0);
 
-        // Get all backup and restore records from database
-        List<SaoLuu> backups = saoLuuDAO.getAll();
+        // Scan backup directory for .sql files (không dùng database)
+        File backupDir = new File(defaultBackupDir);
+
+        if (!backupDir.exists() || !backupDir.isDirectory()) {
+            System.out.println("Thư mục backup không tồn tại: " + defaultBackupDir);
+            return;
+        }
+
+        // Get all .sql files
+        File[] sqlFiles = backupDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".sql"));
+
+        if (sqlFiles == null || sqlFiles.length == 0) {
+            System.out.println("Chưa có bản sao lưu nào trong thư mục");
+            return;
+        }
+
+        // Sort by last modified (newest first)
+        java.util.Arrays.sort(sqlFiles, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        for (SaoLuu backup : backups) {
-            // Check if file still exists
-            File file = new File(backup.getDuongDan());
+        for (File file : sqlFiles) {
+            String tenFile = file.getName();
+            String kichThuoc = formatFileSize(file.length());
+            String ngaySaoLuu = sdf.format(new java.util.Date(file.lastModified()));
+            String duongDan = file.getAbsolutePath();
 
-            if (!file.exists()) {
-                // File deleted - remove from database
-                saoLuuDAO.deleteById(backup.getMaSaoLuu());
-                continue; // Skip this record
-            }
-
-            // File exists - add to table
-            String tenFile = backup.getTenFile();
-            String kichThuoc = backup.getFormattedSize();
-            String ngaySaoLuu = sdf.format(backup.getNgayThucHien());
-            String nguoiThucHien = "User ID: " + backup.getNguoiThucHien(); // Could join with users table for name
-            String duongDan = backup.getDuongDan();
-
-            modelHistory.addRow(new Object[] { tenFile, kichThuoc, ngaySaoLuu, nguoiThucHien, duongDan });
+            modelHistory.addRow(new Object[] { tenFile, kichThuoc, ngaySaoLuu, duongDan });
         }
+    }
 
-        if (modelHistory.getRowCount() == 0) {
-            // Show empty message (optional)
-            System.out.println("Chưa có bản sao lưu nào trong database");
+    /**
+     * Format file size to human readable string
+     */
+    private String formatFileSize(long size) {
+        if (size > 1024 * 1024) {
+            return String.format("%.2f MB", size / (1024.0 * 1024.0));
+        } else if (size > 1024) {
+            return String.format("%.2f KB", size / 1024.0);
+        } else {
+            return size + " bytes";
         }
     }
 
@@ -422,13 +484,13 @@ public class FormSaoLuu extends JFrame {
         }
 
         String tenFile = modelHistory.getValueAt(selectedRow, 0).toString();
-        String duongDan = modelHistory.getValueAt(selectedRow, 4).toString();
+        String duongDan = modelHistory.getValueAt(selectedRow, 3).toString();
 
         // Confirm deletion
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc muốn xóa bản sao lưu này?\n" +
                         "File: " + tenFile + "\n" +
-                        "\nFile sẽ bị xóa khỏi ổ đĩa và database!",
+                        "\nFile sẽ bị xóa vĩnh viễn!",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
@@ -437,35 +499,24 @@ public class FormSaoLuu extends JFrame {
             return;
         }
 
-        boolean success = true;
-        StringBuilder errorMsg = new StringBuilder();
-
         // Delete file from disk
         File file = new File(duongDan);
         if (file.exists()) {
-            if (!file.delete()) {
-                success = false;
-                errorMsg.append("- Không thể xóa file từ ổ đĩa\n");
+            if (file.delete()) {
+                JOptionPane.showMessageDialog(this,
+                        "Đã xóa bản sao lưu thành công!",
+                        "Thành công",
+                        JOptionPane.INFORMATION_MESSAGE);
+                loadBackupHistory();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Không thể xóa file!\nCó thể file đang được sử dụng.",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
-        }
-
-        // Delete record from database
-        if (!saoLuuDAO.deleteByPath(duongDan)) {
-            success = false;
-            errorMsg.append("- Không thể xóa record từ database\n");
-        }
-
-        if (success) {
-            JOptionPane.showMessageDialog(this,
-                    "Đã xóa bản sao lưu thành công!",
-                    "Thành công",
-                    JOptionPane.INFORMATION_MESSAGE);
-            loadBackupHistory();
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Xóa bản sao lưu thất bại!\n" + errorMsg.toString(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+            // File already deleted, just refresh
+            loadBackupHistory();
         }
     }
 
