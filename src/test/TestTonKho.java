@@ -28,18 +28,16 @@ public class TestTonKho {
 
     private static void runMigration() {
         System.out.println("1. Chạy migration...");
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement()) {
 
-            // Create ton_kho table if not exists
+            // Create ton_kho table if not exists (với composite primary key)
             String createTable = "CREATE TABLE IF NOT EXISTS `ton_kho` (" +
-                    "  `id` int(11) NOT NULL AUTO_INCREMENT," +
                     "  `ma_sp` int(11) NOT NULL," +
                     "  `ma_kho` int(11) NOT NULL," +
                     "  `so_luong_ton` int(11) DEFAULT 0," +
                     "  `ngay_cap_nhat` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()," +
-                    "  PRIMARY KEY (`id`)," +
-                    "  UNIQUE KEY `unique_sp_kho` (`ma_sp`,`ma_kho`)," +
+                    "  PRIMARY KEY (`ma_sp`, `ma_kho`)," +
                     "  KEY `ma_kho` (`ma_kho`)," +
                     "  CONSTRAINT `ton_kho_ibfk_1` FOREIGN KEY (`ma_sp`) REFERENCES `san_pham` (`ma_sp`) ON DELETE CASCADE ON UPDATE CASCADE,"
                     +
