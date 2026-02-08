@@ -21,7 +21,7 @@ public class TonKhoDAO {
                 "LEFT JOIN loai_san_pham lsp ON sp.ma_loai = lsp.ma_loai " +
                 "WHERE tk.ma_sp = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maSp);
@@ -29,7 +29,6 @@ public class TonKhoDAO {
 
             while (rs.next()) {
                 TonKho tk = new TonKho();
-                tk.setId(rs.getInt("id"));
                 tk.setMaSp(rs.getInt("ma_sp"));
                 tk.setMaKho(rs.getInt("ma_kho"));
                 tk.setSoLuongTon(rs.getInt("so_luong_ton"));
@@ -60,7 +59,7 @@ public class TonKhoDAO {
                 "LEFT JOIN loai_san_pham lsp ON sp.ma_loai = lsp.ma_loai " +
                 "WHERE tk.ma_kho = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maKho);
@@ -68,7 +67,6 @@ public class TonKhoDAO {
 
             while (rs.next()) {
                 TonKho tk = new TonKho();
-                tk.setId(rs.getInt("id"));
                 tk.setMaSp(rs.getInt("ma_sp"));
                 tk.setMaKho(rs.getInt("ma_kho"));
                 tk.setSoLuongTon(rs.getInt("so_luong_ton"));
@@ -98,7 +96,7 @@ public class TonKhoDAO {
                 "LEFT JOIN loai_san_pham lsp ON sp.ma_loai = lsp.ma_loai " +
                 "WHERE tk.ma_sp = ? AND tk.ma_kho = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maSp);
@@ -107,7 +105,6 @@ public class TonKhoDAO {
 
             if (rs.next()) {
                 TonKho tk = new TonKho();
-                tk.setId(rs.getInt("id"));
                 tk.setMaSp(rs.getInt("ma_sp"));
                 tk.setMaKho(rs.getInt("ma_kho"));
                 tk.setSoLuongTon(rs.getInt("so_luong_ton"));
@@ -132,7 +129,7 @@ public class TonKhoDAO {
     public boolean updateSoLuong(int maSp, int maKho, int soLuong) {
         String sql = "UPDATE ton_kho SET so_luong_ton = ? WHERE ma_sp = ? AND ma_kho = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, soLuong);
@@ -156,7 +153,7 @@ public class TonKhoDAO {
                 "VALUES (?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE so_luong_ton = so_luong_ton + ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maSp);
@@ -177,7 +174,7 @@ public class TonKhoDAO {
     public boolean insert(TonKho tonKho) {
         String sql = "INSERT INTO ton_kho (ma_sp, ma_kho, so_luong_ton) VALUES (?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, tonKho.getMaSp());
@@ -203,13 +200,12 @@ public class TonKhoDAO {
                 "LEFT JOIN loai_san_pham lsp ON sp.ma_loai = lsp.ma_loai " +
                 "ORDER BY k.ten_kho, sp.ten_sp";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 TonKho tk = new TonKho();
-                tk.setId(rs.getInt("id"));
                 tk.setMaSp(rs.getInt("ma_sp"));
                 tk.setMaKho(rs.getInt("ma_kho"));
                 tk.setSoLuongTon(rs.getInt("so_luong_ton"));

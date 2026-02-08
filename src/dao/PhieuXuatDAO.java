@@ -20,7 +20,7 @@ public class PhieuXuatDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getNewConnection();
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
             // 0. KIỂM TRA TỒN KHO TRƯỚC KHI XUẤT (CRITICAL!)
@@ -151,7 +151,7 @@ public class PhieuXuatDAO {
                 "LEFT JOIN khach_hang kh ON px.ma_kh = kh.ma_kh " +
                 "ORDER BY px.ma_phieu_xuat DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql);
                 ResultSet rs = pst.executeQuery()) {
 
@@ -186,7 +186,7 @@ public class PhieuXuatDAO {
                 "WHERE px.so_phieu LIKE ? OR kh.ten_kh LIKE ? " +
                 "ORDER BY px.ma_phieu_xuat DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             String searchPattern = "%" + keyword + "%";
@@ -227,7 +227,7 @@ public class PhieuXuatDAO {
                 "JOIN san_pham sp ON ct.ma_sp = sp.ma_sp " +
                 "WHERE ct.ma_phieu_xuat = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maPhieuXuat);
@@ -235,7 +235,6 @@ public class PhieuXuatDAO {
 
             while (rs.next()) {
                 ChiTietPhieuXuat ct = new ChiTietPhieuXuat(
-                        rs.getInt("id"),
                         rs.getInt("ma_phieu_xuat"),
                         rs.getInt("ma_sp"),
                         rs.getString("ten_sp"),
@@ -263,7 +262,7 @@ public class PhieuXuatDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getNewConnection();
             conn.setAutoCommit(false); // Transaction
 
             // 1. Kiểm tra trạng thái hiện tại

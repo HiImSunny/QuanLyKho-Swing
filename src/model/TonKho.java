@@ -3,7 +3,6 @@ package model;
 import java.sql.Timestamp;
 
 public class TonKho {
-    private int id;
     private int maSp;
     private int maKho;
     private int soLuongTon;
@@ -25,8 +24,7 @@ public class TonKho {
         this.soLuongTon = soLuongTon;
     }
 
-    public TonKho(int id, int maSp, int maKho, int soLuongTon, Timestamp ngayCapNhat) {
-        this.id = id;
+    public TonKho(int maSp, int maKho, int soLuongTon, Timestamp ngayCapNhat) {
         this.maSp = maSp;
         this.maKho = maKho;
         this.soLuongTon = soLuongTon;
@@ -34,13 +32,6 @@ public class TonKho {
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getMaSp() {
         return maSp;
@@ -117,8 +108,7 @@ public class TonKho {
     @Override
     public String toString() {
         return "TonKho{" +
-                "id=" + id +
-                ", maSp=" + maSp +
+                "maSp=" + maSp +
                 ", maKho=" + maKho +
                 ", soLuongTon=" + soLuongTon +
                 ", ngayCapNhat=" + ngayCapNhat +

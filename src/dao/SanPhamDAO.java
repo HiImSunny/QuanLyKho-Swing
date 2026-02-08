@@ -18,7 +18,7 @@ public class SanPhamDAO {
                 "INNER JOIN loai_san_pham lsp ON sp.ma_loai = lsp.ma_loai " +
                 "ORDER BY sp.ma_sp DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -52,7 +52,7 @@ public class SanPhamDAO {
         String sql = "INSERT INTO san_pham (ten_sp, ma_loai, don_vi_tinh, gia_nhap, gia_ban, so_luong_ton, mo_ta) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, sp.getTenSp());
@@ -79,7 +79,7 @@ public class SanPhamDAO {
                 +
                 "WHERE ma_sp=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, sp.getTenSp());
@@ -105,7 +105,7 @@ public class SanPhamDAO {
     public boolean delete(int maSp) {
         String sql = "DELETE FROM san_pham WHERE ma_sp=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, maSp);
@@ -128,7 +128,7 @@ public class SanPhamDAO {
                 "WHERE sp.ten_sp LIKE ? OR sp.mo_ta LIKE ? " +
                 "ORDER BY sp.ma_sp DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             String searchPattern = "%" + keyword + "%";

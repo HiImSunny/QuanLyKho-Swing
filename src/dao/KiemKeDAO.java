@@ -18,7 +18,7 @@ public class KiemKeDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getNewConnection();
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
             // 1. Insert vào bảng kiem_ke
@@ -106,7 +106,7 @@ public class KiemKeDAO {
                 "LEFT JOIN users u ON kk.nguoi_kiem_ke = u.id " +
                 "ORDER BY kk.ngay_kiem_ke DESC, kk.ma_kiem_ke DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -138,7 +138,7 @@ public class KiemKeDAO {
                 "JOIN san_pham sp ON ct.ma_sp = sp.ma_sp " +
                 "WHERE ct.ma_kiem_ke = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maKiemKe);
@@ -146,7 +146,6 @@ public class KiemKeDAO {
 
             while (rs.next()) {
                 ChiTietKiemKe ct = new ChiTietKiemKe(
-                        rs.getInt("id"),
                         rs.getInt("ma_kiem_ke"),
                         rs.getInt("ma_sp"),
                         rs.getString("ten_sp"),
@@ -173,7 +172,7 @@ public class KiemKeDAO {
                 "WHERE tk.ma_kho = ? AND tk.so_luong_ton > 0 " +
                 "ORDER BY sp.ten_sp";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maKho);
@@ -203,7 +202,7 @@ public class KiemKeDAO {
         String prefix = "KK";
         String sql = "SELECT MAX(CAST(SUBSTRING(so_phieu, 3) AS UNSIGNED)) as max_num FROM kiem_ke WHERE so_phieu LIKE 'KK%'";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -225,7 +224,7 @@ public class KiemKeDAO {
     public boolean cancelPhieu(int maKiemKe) {
         String sql = "UPDATE kiem_ke SET trang_thai = 'da_huy' WHERE ma_kiem_ke = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maKiemKe);

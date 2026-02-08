@@ -19,7 +19,7 @@ public class PhieuNhapDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getNewConnection();
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
             // 1. Insert vào bảng phieu_nhap (đã bỏ cột nha_cung_cap, thêm ma_kho)
@@ -88,18 +88,57 @@ public class PhieuNhapDAO {
                 pstTonKho.close();
             }
 
-            // 4. Cập nhật số lượng tồn tổng trong bảng san_pham (optional, để tương thích
-            // ngược)
-            String sqlUpdateSP = "UPDATE san_pham SET so_luong_ton = so_luong_ton + ? WHERE ma_sp = ?";
+            // 4. Cập nhật số lượng tồn và GIÁ BÌNH QUÂN GIA QUYỀN trong bảng san_pham
+            // Công thức: Giá mới = (Giá cũ × SL tồn + Giá nhập × SL nhập) / (SL tồn + SL
+            // nhập)
+            String sqlGetSP = "SELECT so_luong_ton, gia_nhap FROM san_pham WHERE ma_sp = ?";
+            PreparedStatement pstGetSP = conn.prepareStatement(sqlGetSP);
+
+            String sqlUpdateSP = "UPDATE san_pham SET so_luong_ton = ?, gia_nhap = ? WHERE ma_sp = ?";
             PreparedStatement pstUpdate = conn.prepareStatement(sqlUpdateSP);
 
             for (ChiTietPhieuNhap ct : chiTietList) {
-                pstUpdate.setInt(1, ct.getSo_luong());
-                pstUpdate.setInt(2, ct.getMa_sp());
+                // Lấy thông tin hiện tại của sản phẩm
+                pstGetSP.setInt(1, ct.getMa_sp());
+                ResultSet rsSP = pstGetSP.executeQuery();
+
+                int soLuongTonHienTai = 0;
+                BigDecimal giaNhapHienTai = BigDecimal.ZERO;
+
+                if (rsSP.next()) {
+                    soLuongTonHienTai = rsSP.getInt("so_luong_ton");
+                    giaNhapHienTai = rsSP.getBigDecimal("gia_nhap");
+                    if (giaNhapHienTai == null) {
+                        giaNhapHienTai = BigDecimal.ZERO;
+                    }
+                }
+                rsSP.close();
+
+                // Tính giá bình quân gia quyền
+                int soLuongNhap = ct.getSo_luong();
+                BigDecimal giaNhapMoi = ct.getDon_gia();
+                int soLuongTonMoi = soLuongTonHienTai + soLuongNhap;
+
+                BigDecimal giaBinhQuan;
+                if (soLuongTonMoi > 0) {
+                    // Giá mới = (Giá cũ × SL tồn + Giá nhập × SL nhập) / (SL tồn + SL nhập)
+                    BigDecimal giaTriTonKhoCu = giaNhapHienTai.multiply(new BigDecimal(soLuongTonHienTai));
+                    BigDecimal giaTriNhapMoi = giaNhapMoi.multiply(new BigDecimal(soLuongNhap));
+                    giaBinhQuan = giaTriTonKhoCu.add(giaTriNhapMoi)
+                            .divide(new BigDecimal(soLuongTonMoi), 0, java.math.RoundingMode.HALF_UP);
+                } else {
+                    giaBinhQuan = giaNhapMoi; // Nếu tồn = 0, lấy giá nhập mới
+                }
+
+                // Cập nhật san_pham với số lượng mới và giá bình quân mới
+                pstUpdate.setInt(1, soLuongTonMoi);
+                pstUpdate.setBigDecimal(2, giaBinhQuan);
+                pstUpdate.setInt(3, ct.getMa_sp());
                 pstUpdate.addBatch();
             }
 
             pstUpdate.executeBatch();
+            pstGetSP.close();
             pstUpdate.close();
 
             conn.commit(); // Commit transaction
@@ -141,7 +180,7 @@ public class PhieuNhapDAO {
                 "LEFT JOIN nha_cung_cap ncc ON pn.ma_ncc = ncc.ma_ncc " +
                 "ORDER BY pn.ngay_nhap DESC, pn.ma_phieu_nhap DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -174,7 +213,7 @@ public class PhieuNhapDAO {
                 "WHERE pn.so_phieu LIKE ? OR ncc.ten_ncc LIKE ? " +
                 "ORDER BY pn.ngay_nhap DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             String searchPattern = "%" + keyword + "%";
@@ -211,7 +250,7 @@ public class PhieuNhapDAO {
                 "JOIN san_pham sp ON ct.ma_sp = sp.ma_sp " +
                 "WHERE ct.ma_phieu_nhap = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maPhieuNhap);
@@ -219,7 +258,6 @@ public class PhieuNhapDAO {
 
             while (rs.next()) {
                 ChiTietPhieuNhap ct = new ChiTietPhieuNhap(
-                        rs.getInt("id"),
                         rs.getInt("ma_phieu_nhap"),
                         rs.getInt("ma_sp"),
                         rs.getString("ten_sp"),
@@ -244,7 +282,7 @@ public class PhieuNhapDAO {
         ResultSet rs = null;
 
         try {
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getNewConnection();
             conn.setAutoCommit(false); // Transaction
 
             // 1. Kiểm tra trạng thái hiện tại

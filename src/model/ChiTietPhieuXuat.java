@@ -3,7 +3,6 @@ package model;
 import java.math.BigDecimal;
 
 public class ChiTietPhieuXuat {
-    private int id;
     private int ma_phieu_xuat;
     private int ma_sp;
     private String ten_sp; // For display
@@ -12,9 +11,8 @@ public class ChiTietPhieuXuat {
     private BigDecimal thanh_tien; // Calculated: so_luong * don_gia
 
     // Constructor đầy đủ
-    public ChiTietPhieuXuat(int id, int ma_phieu_xuat, int ma_sp, String ten_sp,
+    public ChiTietPhieuXuat(int ma_phieu_xuat, int ma_sp, String ten_sp,
             int so_luong, BigDecimal don_gia, BigDecimal thanh_tien) {
-        this.id = id;
         this.ma_phieu_xuat = ma_phieu_xuat;
         this.ma_sp = ma_sp;
         this.ten_sp = ten_sp;
@@ -44,13 +42,6 @@ public class ChiTietPhieuXuat {
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getMa_phieu_xuat() {
         return ma_phieu_xuat;

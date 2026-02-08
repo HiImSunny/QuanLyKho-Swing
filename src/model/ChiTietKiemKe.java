@@ -4,7 +4,6 @@ package model;
  * Model cho chi tiết phiếu kiểm kê
  */
 public class ChiTietKiemKe {
-    private int id;
     private int ma_kiem_ke;
     private int ma_sp;
     private String ten_sp; // For display
@@ -15,9 +14,8 @@ public class ChiTietKiemKe {
     private String ghi_chu;
 
     // Constructor đầy đủ (dùng khi lấy từ DB)
-    public ChiTietKiemKe(int id, int ma_kiem_ke, int ma_sp, String ten_sp, String don_vi_tinh,
+    public ChiTietKiemKe(int ma_kiem_ke, int ma_sp, String ten_sp, String don_vi_tinh,
             int ton_he_thong, int ton_thuc_te, int chenh_lech, String ghi_chu) {
-        this.id = id;
         this.ma_kiem_ke = ma_kiem_ke;
         this.ma_sp = ma_sp;
         this.ten_sp = ten_sp;
@@ -50,13 +48,6 @@ public class ChiTietKiemKe {
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getMa_kiem_ke() {
         return ma_kiem_ke;

@@ -3,7 +3,6 @@ package model;
 import java.math.BigDecimal;
 
 public class ChiTietPhieuNhap {
-    private int id;
     private int ma_phieu_nhap;
     private int ma_sp;
     private String ten_sp; // For display (from JOIN)
@@ -12,9 +11,8 @@ public class ChiTietPhieuNhap {
     private BigDecimal thanh_tien; // GENERATED COLUMN - chỉ dùng khi SELECT
 
     // Constructor đầy đủ (dùng khi SELECT từ DB với JOIN)
-    public ChiTietPhieuNhap(int id, int ma_phieu_nhap, int ma_sp, String ten_sp,
+    public ChiTietPhieuNhap(int ma_phieu_nhap, int ma_sp, String ten_sp,
             int so_luong, BigDecimal don_gia, BigDecimal thanh_tien) {
-        this.id = id;
         this.ma_phieu_nhap = ma_phieu_nhap;
         this.ma_sp = ma_sp;
         this.ten_sp = ten_sp;
@@ -36,13 +34,6 @@ public class ChiTietPhieuNhap {
     }
 
     // Getters và Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getMa_phieu_nhap() {
         return ma_phieu_nhap;

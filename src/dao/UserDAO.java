@@ -15,7 +15,7 @@ public class UserDAO {
     public User login(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ? AND trang_thai = 1";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -51,7 +51,7 @@ public class UserDAO {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY id DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -80,7 +80,7 @@ public class UserDAO {
     public boolean insert(User user) {
         String sql = "INSERT INTO users (username, password, ho_ten, role, trang_thai) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getUsername());
@@ -103,7 +103,7 @@ public class UserDAO {
     public boolean update(User user) {
         String sql = "UPDATE users SET ho_ten=?, role=?, trang_thai=? WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getHoTen());
@@ -125,7 +125,7 @@ public class UserDAO {
     public boolean changePassword(int userId, String newPassword) {
         String sql = "UPDATE users SET password=? WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, BCryptHelper.hashPassword(newPassword));
@@ -145,7 +145,7 @@ public class UserDAO {
     public boolean delete(int userId) {
         String sql = "DELETE FROM users WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -164,7 +164,7 @@ public class UserDAO {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE username LIKE ? OR ho_ten LIKE ? ORDER BY id DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             String searchPattern = "%" + keyword + "%";
@@ -198,7 +198,7 @@ public class UserDAO {
     public boolean isUsernameExist(String username) {
         String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);

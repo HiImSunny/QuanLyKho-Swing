@@ -17,7 +17,7 @@ public class SaoLuuDAO {
     public boolean insert(SaoLuu saoLuu) {
         String sql = "INSERT INTO sao_luu (ten_file, duong_dan, kich_thuoc, nguoi_thuc_hien, loai, ghi_chu) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setString(1, saoLuu.getTenFile());
@@ -41,7 +41,7 @@ public class SaoLuuDAO {
         List<SaoLuu> list = new ArrayList<>();
         String sql = "SELECT * FROM sao_luu ORDER BY ngay_thuc_hien DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql);
                 ResultSet rs = pst.executeQuery()) {
 
@@ -70,7 +70,7 @@ public class SaoLuuDAO {
         List<SaoLuu> list = new ArrayList<>();
         String sql = "SELECT * FROM sao_luu WHERE loai = 'backup' ORDER BY ngay_thuc_hien DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql);
                 ResultSet rs = pst.executeQuery()) {
 
@@ -97,7 +97,7 @@ public class SaoLuuDAO {
      */
     public boolean deleteById(int maSaoLuu) {
         String sql = "DELETE FROM sao_luu WHERE ma_sao_luu = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setInt(1, maSaoLuu);
@@ -113,7 +113,7 @@ public class SaoLuuDAO {
      */
     public boolean deleteByPath(String duongDan) {
         String sql = "DELETE FROM sao_luu WHERE duong_dan = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getNewConnection();
                 PreparedStatement pst = conn.prepareStatement(sql)) {
 
             pst.setString(1, duongDan);
