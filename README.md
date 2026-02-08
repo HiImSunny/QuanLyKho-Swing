@@ -279,9 +279,8 @@ users (Người dùng)
   │     └── chi_tiet_phieu_nhap
   ├── phieu_xuat (Phiếu xuất)
   │     └── chi_tiet_phieu_xuat
-  ├── kiem_ke (Kiểm kê)
-  │     └── chi_tiet_kiem_ke
-  └── sao_luu (Sao lưu)
+  └── kiem_ke (Kiểm kê)
+        └── chi_tiet_kiem_ke
 
 san_pham (Sản phẩm)
   ├── loai_san_pham (Loại SP)
@@ -418,18 +417,6 @@ khach_hang (Khách hàng)
 | `ghi_chu` | TEXT | Ghi chú |
 
 **Computed Column**: `chenh_lech = ton_thuc_te - ton_he_thong`
-
-#### 10. `sao_luu` - Sao Lưu
-| Cột | Kiểu | Mô tả |
-|-----|------|-------|
-| `ma_sao_luu` | INT (PK) | Mã sao lưu |
-| `ten_file` | VARCHAR(255) | Tên file |
-| `duong_dan` | TEXT | Đường dẫn |
-| `kich_thuoc` | BIGINT | Kích thước (bytes) |
-| `nguoi_thuc_hien` | INT (FK) | Người thực hiện |
-| `loai` | ENUM | backup/restore |
-| `ngay_thuc_hien` | TIMESTAMP | Ngày thực hiện |
-| `ghi_chu` | TEXT | Ghi chú |
 
 ---
 
@@ -646,13 +633,12 @@ pb.redirectInput(file);  // Redirect từ file SQL
 
 ### Lịch Sử Backup
 
-Mọi backup/restore được lưu vào bảng `sao_luu`:
-- Tên file
-- Đường dẫn
-- Kích thước
-- Người thực hiện
-- Thời gian
-- Loại (backup/restore)
+Lịch sử backup/restore được hiển thị trong form Sao lưu:
+- Tên file backup
+- Đường dẫn lưu trữ
+- Kích thước file
+- Thời gian thực hiện
+- Trạng thái
 
 ---
 
